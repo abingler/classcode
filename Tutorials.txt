@@ -1,0 +1,4 @@
+http://en.kioskea.net/faq/30635-how-to-install-flex-and-bison-under-ubuntu
+
+http://www.tldp.org/HOWTO/Lex-YACC-HOWTO-1.html
+
