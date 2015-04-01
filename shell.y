@@ -6,27 +6,6 @@
 #define HOME getenv("HOME")
 #define PWD getenv("PWD")
 
-void yyerror(const char *str) /*print any errors*/
-{
-        fprintf(stderr,"error: %s\n",str);
-}
- 
-int yywrap() /*somthing to do with yyin/yyout dont know yet*/
-{
-        return 1;
-} 
-
-int main()
-{
-	//alias_list = create_linked_list();
-	printf("hello I am computer\n");
-	printf("I make an shell\n");
-	printf("wat do\n");	
-	printf("%s$ ",PWD);
-	yyparse();
-	return 0;
-} 
-
 char * insert_env(char* input){ /*function extrats env variable*/
 	char * s = input;
 	int i;
@@ -54,21 +33,6 @@ char * insert_env(char* input){ /*function extrats env variable*/
 	}
 	return s;
 }
-
-char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
-{
-	static char buffer[4096];
-	char *p;
-	if(!(p = strstr(str, orig))) return str; /*is orig in str*/
-	
-	strncpy(buffer, str, p-str); /*copy char from str start to orig into buffer*/
-	buffer[p-str] = '\0';
-	
-	sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
-	
-	return buffer;
-}
-
 %}
 
 
@@ -99,6 +63,7 @@ command:
 		| setenv NEW_LINE
 		| printenv NEW_LINE
 		| unsetenv NEW_LINE
+		| ls NEW_LINE
 		| alias NEW_LINE
 		| unalias NEW_LINE
 		;
@@ -143,28 +108,4 @@ print_env:
 			while(env[i])
 				printf("%s\n", env[i++]);
 			char* path = getenv("PATH");
-		};
-
-unset_env:
-	UNSET_ENV WORD
-		{
-			char* name = $<string>2;
-			if(getenv(name)) /*checks if valid env before unseting it*/
-				unsetenv(name);
-			else
-				printf("No variable named %s.\n", name);
-		};
-
-alias://the rest is dependant on datastructures so left undone
-	ALIAS 
-		{
-			/*print current aliass*/
 		}
-		| ALIAS WORD WORD
-		{
-			/*add new alias $2 =$3*/
-		};
-
-
-arg: WORD{$$=$1;}
-%%
