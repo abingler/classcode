@@ -40,30 +40,40 @@
       know about them.  */
    enum yytokentype {
      CD = 258,
-     BYE = 259,
-     PRINT_ENV = 260,
-     SET_ENV = 261,
-     UNSET_ENV = 262,
-     NEW_LINE = 263,
-     ALIAS = 264,
-     UNALIAS = 265,
-     LS = 266,
-     WORD = 267,
-     CHANGE_DIR = 268
+     LS = 259,
+     BYE = 260,
+     NUMBER = 261,
+     PRINT_ENV = 262,
+     FRONTSLASH = 263,
+     PERIOD = 264,
+     LESSTHAN = 265,
+     GREATERTHAN = 266,
+     PIPE = 267,
+     DOUBLEQUOTE = 268,
+     BACKSLASH = 269,
+     AMPERSAND = 270,
+     SET_ENV = 271,
+     UNSET_ENV = 272,
+     WORD = 273
    };
 #endif
 /* Tokens.  */
 #define CD 258
-#define BYE 259
-#define PRINT_ENV 260
-#define SET_ENV 261
-#define UNSET_ENV 262
-#define NEW_LINE 263
-#define ALIAS 264
-#define UNALIAS 265
-#define LS 266
-#define WORD 267
-#define CHANGE_DIR 268
+#define LS 259
+#define BYE 260
+#define NUMBER 261
+#define PRINT_ENV 262
+#define FRONTSLASH 263
+#define PERIOD 264
+#define LESSTHAN 265
+#define GREATERTHAN 266
+#define PIPE 267
+#define DOUBLEQUOTE 268
+#define BACKSLASH 269
+#define AMPERSAND 270
+#define SET_ENV 271
+#define UNSET_ENV 272
+#define WORD 273
 
 
 
@@ -73,16 +83,15 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 84 "shell.y"
+#line 23 "exampleshell.y"
 
         int number;
         char* string;
-        void* linkedlist;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 86 "y.tab.h"
+#line 95 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

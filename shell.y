@@ -152,6 +152,14 @@ print_env:
 			char* path = getenv("PATH");
 		}
 
+ls:
+	LS
+		{
+
+
+
+		
+		}
 
 
 %%
