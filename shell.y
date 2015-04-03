@@ -1,7 +1,8 @@
 %{
-#include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define HOME getenv("HOME")
 #define PWD getenv("PWD")
@@ -16,6 +17,7 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 {
         return 1;
 } 
+
 
 int main()
 {
@@ -120,7 +122,7 @@ command:
 		| cd  NEW_LINE
 		| set_env NEW_LINE
 		| print_env NEW_LINE
-		//| unsetenv NEW_LINE
+		| unset_env NEW_LINE
 		| ls NEW_LINE
 		//| alias NEW_LINE
 		//| unalias NEW_LINE
@@ -160,13 +162,22 @@ set_env:
 		};
 print_env:
 	PRINTENV
-		{
-			extern char **environ;
+		{		
+			extern char **environ;	
 			int i=0;
 			while(environ[i])
 				printf("%s\n", environ[i++]);
 			char* path = getenv("PATH");
 			printf("%s$ ",path);
+		}
+unset_env:
+	UNSETENV WORD 
+		{
+			char* name = $<string>2;
+			if(getenv(name))
+				unsetenv(name);\
+			else
+				printf("Variable %s does not exist.\n", name);
 		}
 
 ls:

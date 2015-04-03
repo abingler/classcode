@@ -789,12 +789,12 @@ return SETENV;
 case 4:
 YY_RULE_SETUP
 #line 11 "shell.l"
-return UNSETENV;
+return PRINTENV;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 12 "shell.l"
-return PRINTENV;
+return UNSETENV;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP

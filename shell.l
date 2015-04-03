@@ -8,8 +8,8 @@
 bye					return BYE;
 cd					return CD;
 setenv				return SETENV;
-printenv			return UNSETENV;
-unsetenv			return PRINTENV;
+printenv			return PRINTENV;
+unsetenv			return UNSETENV;
 ls					return LS;
 alias				return ALIAS;
 unalias				return UNALIAS;
