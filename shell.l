@@ -5,12 +5,12 @@
 %}
 %%
 
-bye					return EXIT;
-cd					return CHANGE_DIR;
+bye					return BYE;
+cd					return CD;
 setenv				return SET_ENV;
 printenv			return UNSET_ENV;
 unsetenv			return PRINT_ENV;
-ls					return LIST_DIR;
+ls					return LS;
 alias				return ALIAS;
 unalias				return UNALIAS;
 
