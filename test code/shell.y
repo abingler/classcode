@@ -5,7 +5,6 @@
 
 #define HOME getenv("HOME")
 #define PWD getenv("PWD")
-#define copystring(a,b) strcpy((a=(char *)malloc(strlen(b)+1)),b)
 
 void yyerror(const char *str) /*print any errors*/
 {
@@ -21,29 +20,12 @@ int main()
 {
 	//alias_list = create_linked_list();
 	printf("hello I am computer\n");
-	printf("I make am shell\n");
-	printf("wat do\n");
-
-	while(1){	
-		printf("%s$ ",PWD);
-		yyparse();
-	}
+	printf("I make an shell\n");
+	printf("wat do\n");	
+	printf("%s$ ",PWD);
+	yyparse();
 	return 0;
 } 
-
-char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
-{
-	static char buffer[4096];
-	char *p;
-	if(!(p = strstr(str, orig))) return str; /*is orig in str*/
-	
-	strncpy(buffer, str, p-str); /*copy char from str start to orig into buffer*/
-	buffer[p-str] = '\0';
-	
-	sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
-	
-	return buffer;
-}
 
 char * insert_env(char* input){ /*function extrats env variable*/
 	char * s = input;
@@ -73,28 +55,24 @@ char * insert_env(char* input){ /*function extrats env variable*/
 	return s;
 }
 
-void ls(){
-	int process;
-	process = fork();
-	if(process > 0)		/* parent */
-		wait((int*)0);
-	else if(process == 0)	/* child */
-	{
-		execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search current direct*/
-		exit(1);
-	}
-	else if(process == -1)		/* can't create a new process */
-	{
-		fprintf(stderr, "Can't fork!\n");
-		exit(2);
-	}
+char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
+{
+	static char buffer[4096];
+	char *p;
+	if(!(p = strstr(str, orig))) return str; /*is orig in str*/
+	
+	strncpy(buffer, str, p-str); /*copy char from str start to orig into buffer*/
+	buffer[p-str] = '\0';
+	
+	sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
+	
+	return buffer;
 }
-
 
 %}
 
 
-%token CD BYE PRINTENV SETENV UNSETENV NEW_LINE ALIAS UNALIAS LS
+%token CHANGE_DIR BYE PRINT_ENV SET_ENV UNSET_ENV NEW_LINE ALIAS UNALIAS
 
 %union
 {
@@ -106,24 +84,23 @@ void ls(){
 
 %left CHANGE_DIR ALIAS WORD
 %token <string> WORD
-//%type <linkedlist> arg_list
-//%type <linkedlist> cmd
-//%type <string> arg
+%type <linkedlist> arg_list
+%type <linkedlist> cmd
+%type <string> arg
 %%
 
 commands:
 		| commands command 	{printf("%s$ ",getenv("PWD"));}; /*print the current working dir*/
 
 command:
-		| NEW_LINE /* ignore new line*/
+		| NEW_LINE {} /* ignore new line*/
 		| bye  NEW_LINE
 		| cd  NEW_LINE
-		| set_env NEW_LINE
-		| print_env NEW_LINE
-		//| unsetenv NEW_LINE
-		| ls NEW_LINE
-		//| alias NEW_LINE
-		//| unalias NEW_LINE
+		| setenv NEW_LINE
+		| printenv NEW_LINE
+		| unsetenv NEW_LINE
+		| alias NEW_LINE
+		| unalias NEW_LINE
 		;
 
 
@@ -150,30 +127,44 @@ cd:
 		};
 		
 set_env:
-	SETENV WORD WORD
+	SET_ENV WORD WORD
 		{
 			char* envName = insert_env($<string>2);/*extract word1*/
 			char* envVal = insert_env($<string>3);/*extract word2*/
-			int result = setenv(envName, envVal, 1);
+			int result = setenv(envname, envval, 1);
 			if(result == -1)
-				printf("Failed to set variable %s to %s.\n", envName, envVal);
+				printf("Failed to set variable %s to %s.\n", envname, envval);
 		};
 print_env:
-	PRINTENV
+	PRINT_ENV
 		{
-			extern char **environ;
+			extern char **env;
 			int i=0;
-			while(environ[i])
-				printf("%s\n", environ[i++]);
+			while(env[i])
+				printf("%s\n", env[i++]);
 			char* path = getenv("PATH");
-			printf("%s$ ",path);
-		}
+		};
 
-ls:
-	LS
+unset_env:
+	UNSET_ENV WORD
 		{
-			ls();
+			char* name = $<string>2;
+			if(getenv(name)) /*checks if valid env before unseting it*/
+				unsetenv(name);
+			else
+				printf("No variable named %s.\n", name);
+		};
+
+alias://the rest is dependant on datastructures so left undone
+	ALIAS 
+		{
+			/*print current aliass*/
 		}
+		| ALIAS WORD WORD
+		{
+			/*add new alias $2 =$3*/
+		};
 
 
+arg: WORD{$$=$1;}
 %%

@@ -41,9 +41,9 @@
    enum yytokentype {
      CD = 258,
      BYE = 259,
-     PRINT_ENV = 260,
-     SET_ENV = 261,
-     UNSET_ENV = 262,
+     PRINTENV = 260,
+     SETENV = 261,
+     UNSETENV = 262,
      NEW_LINE = 263,
      ALIAS = 264,
      UNALIAS = 265,
@@ -55,9 +55,9 @@
 /* Tokens.  */
 #define CD 258
 #define BYE 259
-#define PRINT_ENV 260
-#define SET_ENV 261
-#define UNSET_ENV 262
+#define PRINTENV 260
+#define SETENV 261
+#define UNSETENV 262
 #define NEW_LINE 263
 #define ALIAS 264
 #define UNALIAS 265
@@ -73,7 +73,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 84 "shell.y"
+#line 100 "shell.y"
 
         int number;
         char* string;

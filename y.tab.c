@@ -92,7 +92,7 @@ int main()
 {
 	//alias_list = create_linked_list();
 	printf("hello I am computer\n");
-	printf("I make an shell\n");
+	printf("I make am shell\n");
 	printf("wat do\n");
 
 	while(1){	
@@ -144,12 +144,28 @@ char * insert_env(char* input){ /*function extrats env variable*/
 	return s;
 }
 
+void ls(){
+	int process;
+	process = fork();
+	if(process > 0)		/* parent */
+		wait((int*)0);
+	else if(process == 0)	/* child */
+	{
+		execlp("ls", "ls", "--color=auto",(char *) NULL );
+		exit(1);
+	}
+	else if(process == -1)		/* can't create a new process */
+	{
+		fprintf(stderr, "Can't fork!\n");
+		exit(2);
+	}
+}
 
 
 
 
 /* Line 189 of yacc.c  */
-#line 153 "y.tab.c"
+#line 169 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -178,9 +194,9 @@ char * insert_env(char* input){ /*function extrats env variable*/
    enum yytokentype {
      CD = 258,
      BYE = 259,
-     PRINT_ENV = 260,
-     SET_ENV = 261,
-     UNSET_ENV = 262,
+     PRINTENV = 260,
+     SETENV = 261,
+     UNSETENV = 262,
      NEW_LINE = 263,
      ALIAS = 264,
      UNALIAS = 265,
@@ -192,9 +208,9 @@ char * insert_env(char* input){ /*function extrats env variable*/
 /* Tokens.  */
 #define CD 258
 #define BYE 259
-#define PRINT_ENV 260
-#define SET_ENV 261
-#define UNSET_ENV 262
+#define PRINTENV 260
+#define SETENV 261
+#define UNSETENV 262
 #define NEW_LINE 263
 #define ALIAS 264
 #define UNALIAS 265
@@ -210,7 +226,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 84 "shell.y"
+#line 100 "shell.y"
 
         int number;
         char* string;
@@ -219,7 +235,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 223 "y.tab.c"
+#line 239 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -231,7 +247,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 235 "y.tab.c"
+#line 251 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -446,16 +462,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   16
+#define YYLAST   15
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  14
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  7
+#define YYNNTS  8
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  14
+#define YYNRULES  16
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  20
+#define YYNSTATES  23
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -502,7 +518,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     4,     7,     8,    10,    13,    16,    19,
-      22,    24,    26,    29,    33
+      22,    25,    27,    29,    32,    36,    38
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -510,15 +526,15 @@ static const yytype_int8 yyrhs[] =
 {
       15,     0,    -1,    -1,    15,    16,    -1,    -1,     8,    -1,
       17,     8,    -1,    18,     8,    -1,    19,     8,    -1,    20,
-       8,    -1,     4,    -1,     3,    -1,     3,    12,    -1,     6,
-      12,    12,    -1,     5,    -1
+       8,    -1,    21,     8,    -1,     4,    -1,     3,    -1,     3,
+      12,    -1,     6,    12,    12,    -1,     5,    -1,    11,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    98,    98,    99,   101,   102,   103,   104,   105,   106,
-     115,   122,   127,   137,   146
+       0,   114,   114,   115,   117,   118,   119,   120,   121,   122,
+     124,   131,   138,   143,   153,   162,   173
 };
 #endif
 
@@ -527,9 +543,10 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "CD", "BYE", "PRINT_ENV", "SET_ENV",
-  "UNSET_ENV", "NEW_LINE", "ALIAS", "UNALIAS", "LS", "WORD", "CHANGE_DIR",
-  "$accept", "commands", "command", "bye", "cd", "set_env", "print_env", 0
+  "$end", "error", "$undefined", "CD", "BYE", "PRINTENV", "SETENV",
+  "UNSETENV", "NEW_LINE", "ALIAS", "UNALIAS", "LS", "WORD", "CHANGE_DIR",
+  "$accept", "commands", "command", "bye", "cd", "set_env", "print_env",
+  "ls", 0
 };
 #endif
 
@@ -547,14 +564,14 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    14,    15,    15,    16,    16,    16,    16,    16,    16,
-      17,    18,    18,    19,    20
+      16,    17,    18,    18,    19,    20,    21
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     0,     2,     0,     1,     2,     2,     2,     2,
-       1,     1,     2,     3,     1
+       2,     1,     1,     2,     3,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -562,14 +579,15 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     1,    11,    10,    14,     0,     5,     3,     0,
-       0,     0,     0,    12,     0,     6,     7,     8,     9,    13
+       2,     0,     1,    12,    11,    15,     0,     5,    16,     3,
+       0,     0,     0,     0,     0,    13,     0,     6,     7,     8,
+       9,    10,    14
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     8,     9,    10,    11,    12
+      -1,     1,     9,    10,    11,    12,    13,    14
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -577,14 +595,15 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -12
 static const yytype_int8 yypact[] =
 {
-     -12,     0,   -12,   -11,   -12,   -12,   -10,   -12,   -12,    -1,
-       1,     2,     3,   -12,     4,   -12,   -12,   -12,   -12,   -12
+     -12,     0,   -12,   -11,   -12,   -12,   -10,   -12,   -12,   -12,
+      -1,     1,     2,     4,     5,   -12,     3,   -12,   -12,   -12,
+     -12,   -12,   -12
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -12,   -12,   -12,   -12,   -12,   -12,   -12
+     -12,   -12,   -12,   -12,   -12,   -12,   -12,   -12
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -594,22 +613,23 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       2,    13,    14,     3,     4,     5,     6,    15,     7,    16,
-      17,    18,     0,     0,     0,     0,    19
+       2,    15,    16,     3,     4,     5,     6,    17,     7,    18,
+      19,     8,    20,    21,     0,    22
 };
 
 static const yytype_int8 yycheck[] =
 {
        0,    12,    12,     3,     4,     5,     6,     8,     8,     8,
-       8,     8,    -1,    -1,    -1,    -1,    12
+       8,    11,     8,     8,    -1,    12
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    15,     0,     3,     4,     5,     6,     8,    16,    17,
-      18,    19,    20,    12,    12,     8,     8,     8,     8,    12
+       0,    15,     0,     3,     4,     5,     6,     8,    11,    16,
+      17,    18,    19,    20,    21,    12,    12,     8,     8,     8,
+       8,     8,    12
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1423,34 +1443,34 @@ yyreduce:
         case 3:
 
 /* Line 1455 of yacc.c  */
-#line 99 "shell.y"
+#line 115 "shell.y"
     {printf("%s$ ",getenv("PWD"));}
     break;
 
-  case 10:
+  case 11:
 
 /* Line 1455 of yacc.c  */
-#line 116 "shell.y"
+#line 132 "shell.y"
     {
 			printf("Exiting the shell now...\n");
 			exit(0);
 		}
     break;
 
-  case 11:
+  case 12:
 
 /* Line 1455 of yacc.c  */
-#line 123 "shell.y"
+#line 139 "shell.y"
     {
 			chdir(getenv("HOME"));  /*move to home*/
 			setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
 		}
     break;
 
-  case 12:
+  case 13:
 
 /* Line 1455 of yacc.c  */
-#line 128 "shell.y"
+#line 144 "shell.y"
     {
 			(yyvsp[(2) - (2)].string) = insert_env((yyvsp[(2) - (2)].string)); /*extract env from word*/
 			chdir((yyvsp[(2) - (2)].string));			/*change dir*/
@@ -1460,10 +1480,10 @@ yyreduce:
 		}
     break;
 
-  case 13:
+  case 14:
 
 /* Line 1455 of yacc.c  */
-#line 138 "shell.y"
+#line 154 "shell.y"
     {
 			char* envName = insert_env((yyvsp[(2) - (3)].string));/*extract word1*/
 			char* envVal = insert_env((yyvsp[(3) - (3)].string));/*extract word2*/
@@ -1473,23 +1493,33 @@ yyreduce:
 		}
     break;
 
-  case 14:
+  case 15:
 
 /* Line 1455 of yacc.c  */
-#line 147 "shell.y"
+#line 163 "shell.y"
     {
 			extern char **environ;
 			int i=0;
 			while(environ[i])
 				printf("%s\n", environ[i++]);
 			char* path = getenv("PATH");
+			printf("%s$ ",path);
+		}
+    break;
+
+  case 16:
+
+/* Line 1455 of yacc.c  */
+#line 174 "shell.y"
+    {
+			ls();
 		}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1493 "y.tab.c"
+#line 1523 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1701,5 +1731,5 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 165 "shell.y"
+#line 179 "shell.y"
 
