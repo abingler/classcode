@@ -80,9 +80,11 @@
 #define PWD getenv("PWD")
 #define copystring(a,b) strcpy((a=(char *)malloc(strlen(b)+1)),b)
 
+extern int yylineno;
+
 void yyerror(const char *str) /*print any errors*/
 {
-        fprintf(stderr,"error: %s\n",str);
+        fprintf(stderr,"error: %s at line %d\n",str,yylineno);
 }
  
 int yywrap() /*somthing to do with yyin/yyout dont know yet*/
@@ -245,14 +247,14 @@ char* alias_replace(char* alias)
 {
     char* val = retrieve_val(alias_head, alias);/*look for alias and return matching value*/
     if (val != NULL) return val; /*if the alias exists return value*/
-    return alias; /*else return the alias*/
+    return alias; /*else return the original input*/
 }
 
 
 
 
 /* Line 189 of yacc.c  */
-#line 256 "y.tab.c"
+#line 258 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -313,7 +315,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 187 "shell.y"
+#line 189 "shell.y"
 
         int number;
         char* string;
@@ -322,7 +324,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 326 "y.tab.c"
+#line 328 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -334,7 +336,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 338 "y.tab.c"
+#line 340 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -624,9 +626,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   201,   201,   202,   204,   205,   206,   207,   208,   209,
-     210,   211,   212,   213,   218,   225,   230,   240,   249,   259,
-     269,   275,   279,   289
+       0,   203,   203,   204,   206,   207,   208,   209,   210,   211,
+     212,   213,   214,   215,   220,   227,   232,   242,   251,   261,
+     271,   277,   281,   291
 };
 #endif
 
@@ -1544,14 +1546,14 @@ yyreduce:
         case 3:
 
 /* Line 1455 of yacc.c  */
-#line 202 "shell.y"
+#line 204 "shell.y"
     {printf("%s$ ",getenv("PWD"));}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 219 "shell.y"
+#line 221 "shell.y"
     {
 			printf("Exiting the shell now...\n");
 			exit(0);
@@ -1561,7 +1563,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 226 "shell.y"
+#line 228 "shell.y"
     {
 			chdir(getenv("HOME"));  /*move to home*/
 			setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
@@ -1571,7 +1573,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 231 "shell.y"
+#line 233 "shell.y"
     {
 			(yyvsp[(2) - (2)].string) = insert_env((yyvsp[(2) - (2)].string)); /*extract env from word*/
 			chdir((yyvsp[(2) - (2)].string));			/*change dir*/
@@ -1584,7 +1586,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 241 "shell.y"
+#line 243 "shell.y"
     {
 			char* envName = insert_env((yyvsp[(2) - (3)].string));/*extract word1*/
 			char* envVal = insert_env((yyvsp[(3) - (3)].string));/*extract word2*/
@@ -1597,7 +1599,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 250 "shell.y"
+#line 252 "shell.y"
     {		
 			extern char **environ;	
 			int i=0;
@@ -1611,7 +1613,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 260 "shell.y"
+#line 262 "shell.y"
     {
 			char* name = (yyvsp[(2) - (2)].string);
 			if(getenv(name))
@@ -1624,7 +1626,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 270 "shell.y"
+#line 272 "shell.y"
     {
 			ls();
 		}
@@ -1633,7 +1635,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 276 "shell.y"
+#line 278 "shell.y"
     {
 			print_alias_list(alias_head);/*prints list*/
 		}
@@ -1642,7 +1644,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 280 "shell.y"
+#line 282 "shell.y"
     { 
 			if(retrieve_val( alias_head,(yyvsp[(2) - (3)].string)) != NULL){
 				remove_by_alias(&alias_head, (yyvsp[(2) - (3)].string)); //remove existing alias
@@ -1655,7 +1657,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 290 "shell.y"
+#line 292 "shell.y"
     {
 			remove_by_alias(&alias_head, (yyvsp[(2) - (2)].string));
 		}
@@ -1664,7 +1666,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1668 "y.tab.c"
+#line 1670 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1876,5 +1878,5 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 295 "shell.y"
+#line 297 "shell.y"
 

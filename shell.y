@@ -9,9 +9,11 @@
 #define PWD getenv("PWD")
 #define copystring(a,b) strcpy((a=(char *)malloc(strlen(b)+1)),b)
 
+extern int yylineno;
+
 void yyerror(const char *str) /*print any errors*/
 {
-        fprintf(stderr,"error: %s\n",str);
+        fprintf(stderr,"error: %s at line %d\n",str,yylineno);
 }
  
 int yywrap() /*somthing to do with yyin/yyout dont know yet*/
@@ -174,7 +176,7 @@ char* alias_replace(char* alias)
 {
     char* val = retrieve_val(alias_head, alias);/*look for alias and return matching value*/
     if (val != NULL) return val; /*if the alias exists return value*/
-    return alias; /*else return the alias*/
+    return alias; /*else return the original input*/
 }
 
 
