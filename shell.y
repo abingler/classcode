@@ -38,7 +38,7 @@ int main()
 	printf("wat do\n");
 
 	while(1){	
-		printf("%s$ ",PWD);
+		printf("%s> ",PWD);
 		yyparse();
 	}
 	return 0;
@@ -201,7 +201,7 @@ char* alias_replace(char* alias)
 %%
 
 commands:
-		| commands command 	{printf("%s$ ",getenv("PWD"));}; /*print the current working dir*/
+		| commands command 	{printf("%s> ",getenv("PWD"));}; /*print the current working dir*/
 
 command:
 		| NEW_LINE /* ignore new line*/
@@ -255,7 +255,7 @@ print_env:
 			while(environ[i])
 				printf("%s\n", environ[i++]);
 			char* path = getenv("PATH");
-			printf("%s$ ",path);
+			printf("%s> ",path);
 		}
 unset_env:
 	UNSETENV WORD 
