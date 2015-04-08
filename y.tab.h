@@ -49,7 +49,8 @@
      UNALIAS = 265,
      LS = 266,
      WORD = 267,
-     CHANGE_DIR = 268
+     CHANGE_DIR = 268,
+     ARGS = 269
    };
 #endif
 /* Tokens.  */
@@ -64,6 +65,7 @@
 #define LS 266
 #define WORD 267
 #define CHANGE_DIR 268
+#define ARGS 269
 
 
 
@@ -73,16 +75,17 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 29 "shell.y"
+#line 151 "shell.y"
 
         int number;
         char* string;
         void* linkedlist;
+        arg_node* arg_n;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 86 "y.tab.h"
+#line 89 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

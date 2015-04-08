@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "node.h"
 
+#define HOME getenv("HOME")
 #define PWD getenv("PWD")
 #define copystring(a,b) strcpy((a=(char *)malloc(strlen(b)+1)),b)
 
@@ -32,47 +33,6 @@ int main()
 	return 0;
 } 
 
-char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
-{
-	static char buffer[4096];
-	char *p;
-	if(!(p = strstr(str, orig))) return str; /*is orig in str*/
-	
-	strncpy(buffer, str, p-str); /*copy char from str start to orig into buffer*/
-	buffer[p-str] = '\0';
-	
-	sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
-	
-	return buffer;
-}
-
-char * insert_env(char* input){ /*function extrats env variable*/
-	char * s = input;
-	int i;
-	int validFlag = 0;
-	int start;
-	int end;
-	for (i = 0; i < strlen(s); i++) /*iterate through input*/
-	{
-		if(s[i] == '$') start = i;
-		if(s[i] == '{' && i == start+1) validFlag = 1;
-		if(s[i] == '}' && validFlag)
-		{
-			char subbuf[4096];
-			memcpy(subbuf, &s[start], i-start+1);
-			subbuf[i-start+1] = '\0';
-
-			char * var; /*extrat var from ${var}*/
-			copystring(var, subbuf);
-			var = var + 2; 				//get rid of ${
-			var[i-start-2] = '\0';  		//get rid of ending }
-			
-			s = replace(s, subbuf, getenv(var));
-		}
-	
-	}
-	return s;
-}
 
 void ls(){
 	int process;
@@ -166,5 +126,4 @@ char* alias_replace(char* alias)
     if (val != NULL) return val; /*if the alias exists return value*/
     return alias; /*else return the original input*/
 }
-
 

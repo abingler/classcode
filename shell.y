@@ -6,8 +6,6 @@
 #include "node.h"
 #include "main.c"
 
-#define HOME getenv("HOME")
-#define PWD getenv("PWD")
 
 
 void yyerror(const char *str) /*print any errors*/
@@ -20,6 +18,130 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
         return 1;
 } 
 
+/*string handling functions*/
+
+char* str_replace_first(char* string, char* substr, char* replacement);
+
+char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
+{
+	static char buffer[4096];
+	char *p;
+	if(!(p = strstr(str, orig))) return str; /*is orig in str*/
+	
+	strncpy(buffer, str, p-str); /*copy char from str start to orig into buffer*/
+	buffer[p-str] = '\0';
+	
+	sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
+	
+	return buffer;
+}
+
+char * insert_env(char* input){ /*function extrats env variable*/
+	char * s = input;
+	int i;
+	int validFlag = 0;
+	int start;
+	int end;
+	for (i = 0; i < strlen(s); i++) /*iterate through input*/
+	{
+		if(s[i] == '$') start = i;
+		if(s[i] == '{' && i == start+1) validFlag = 1;
+		if(s[i] == '}' && validFlag)
+		{
+			char subbuf[4096];
+			memcpy(subbuf, &s[start], i-start+1);
+			subbuf[i-start+1] = '\0';
+
+			char * var; /*extrat var from ${var}*/
+			copystring(var, subbuf);
+			var = var + 2; 				//get rid of ${
+			var[i-start-2] = '\0';  		//get rid of ending }
+			
+			s = replace(s, subbuf, getenv(var));
+		}
+	
+	}
+	return s;
+}
+
+
+int has_whitespace(char* string)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] == '\t' || string[i] == ' ') return 1;
+    }
+    return 0;
+}
+int only_whitespace(char* string)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] != '\t' && string[i] != ' ') return 0;
+    }
+    return 1;
+}
+int has_character(char* string, char ch)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] == ch) return 1;
+    }
+    return 0;
+}
+void replace_escape(char* str)
+{
+    char* p_read = str;
+    char* p_write = str;
+    while (*p_read) {
+        *p_write = *p_read++;
+        p_write += (*p_write != '\\' || *(p_write + 1) == '\\');
+    }
+    *p_write = '\0';
+}
+char* str_replace_first(char* string, char* substr, char* replacement)
+{
+    char* token = strstr(string, substr); //check for existence of substring in string
+    if(token == NULL) return strdup(string); //if no substring return string duplicate
+    char* replaced_string = malloc(strlen(string) - strlen(substr) + strlen(replacement) + 1);
+    memcpy(replaced_string, string, token - string);
+    memcpy(replaced_string + (token - string), replacement, strlen(replacement));
+    memcpy(replaced_string + (token - string) + strlen(replacement), token + strlen(substr), strlen(string) - strlen(substr) - (token - string));
+    memset(replaced_string + strlen(string) - strlen(substr) + strlen(replacement), 0, 1);
+    return replaced_string;
+}
+
+arg_node* split_to_tokens(char* string, char* delimiter)
+{
+    char* token;
+    char* tmp = strdup(string);
+    token = strtok(tmp, delimiter);
+    arg_node* head = malloc(sizeof(arg_node));
+    head->next = NULL;
+    if (token != NULL)
+    {
+        head->arg_str = token;
+    }
+    else
+    {
+        head->arg_str = tmp;
+    }
+    arg_node* current = head;
+    token = strtok(NULL, delimiter); 
+    while (token != NULL)
+    {
+          current->next = malloc(sizeof(arg_node));
+          current = current->next;
+          current->arg_str = token;
+          current->next = NULL;  
+          token = strtok(NULL, delimiter); 
+    }
+    return head;
+}
+
 %}
 
 
@@ -30,18 +152,22 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
         int number;
         char* string;
         void* linkedlist;
+        arg_node* arg_n;
 }
 
 
 %left CHANGE_DIR ALIAS WORD
 %token <string> WORD
-//%type <linkedlist> arg_list
+%token <arg_n> ARGS
+%type <arg_n> arg_list
 //%type <linkedlist> cmd
 //%type <string> arg
 %%
 
 commands:
-		| commands command 	{printf("%s> ",getenv("PWD"));}; /*print the current working dir*/
+		| commands command 	{printf("%s> ",getenv("PWD"));}
+		| commands arg_list {//printf("%s> ",getenv("PWD"));} /*print the current working dir*/
+	}
 
 command:
 		| NEW_LINE /* ignore new line*/
@@ -133,5 +259,29 @@ unalias:
 			remove_by_alias(&alias_head, $2);
 		}
 
+arg_list:
+    WORD arg_list { $$ = malloc(sizeof(arg_node));
+                    $$->next = $2;
+                    $$->arg_str = $1;
+                    printf("%s\n",$1 );
+                	}
+    |
+    ARGS arg_list {  $$ = $1;
+                     arg_node* current = $1;
+                     while (current->next != NULL) current = current->next;
+                     current->next = $2;
+                     printf("%s\n",$1 );
+                 }
+    |
+    ARGS          { $$ = $1; 
+    				printf("%s\n",$1 );
+    				}
 
+    |
+    WORD          { $$ = malloc(sizeof(arg_node));
+                    $$->next = NULL;
+                    $$->arg_str = $1;
+                    printf("%s\n",$1 ); 
+                }
+    ;
 %%
