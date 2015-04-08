@@ -33,6 +33,25 @@ int main()
 	return 0;
 } 
 
+void ls(){
+    int process;
+    process = fork();
+    if(process > 0)     /* parent */
+        wait((int*)0); //Casting zero to an int pointer?
+    else if(process == 0)   /* child */
+    {
+        execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search current direct*/
+        exit(1);
+    }
+    else if(process == -1)      /* can't create a new process */
+    {
+        fprintf(stderr, "Can't fork!\n");
+        exit(2);
+    }
+}
+
+
+
 commandBlock(arg_node* args)
 {
 	args = aliasArgReplace(args);
@@ -41,8 +60,17 @@ commandBlock(arg_node* args)
             printf("%s\n",args->arg_str);
             args = args->next;
         }*/
-            //asdaf
-
+    const char* Commands[1] = {"ls",};
+    int i;
+    for(i = 0; i< 1; i++){
+        if (strcmp(args->arg_str, Commands[i]) == 0){
+            switch (i){
+                case 0:
+                    ls();
+                    return;
+            }
+        }
+    }
 }
 
 char* retrieve_val(node_t* head, char* alias)/*search the list and return the value of a given alias */
@@ -133,23 +161,6 @@ aliasArgReplace(arg_node* args){
 }
 
 
-void ls(){
-	int process;
-	process = fork();
-	if(process > 0)		/* parent */
-		wait((int*)0); //Casting zero to an int pointer?
-	else if(process == 0)	/* child */
-	{
-		execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search current direct*/
-		exit(1);
-	}
-	else if(process == -1)		/* can't create a new process */
-	{
-		fprintf(stderr, "Can't fork!\n");
-		exit(2);
-	}
-}
-
 /*Alias Linked List*/
 
 void push(node_t** head, char* alias, char* val) { /*add new node to linked list*/
@@ -168,7 +179,7 @@ void push(node_t** head, char* alias, char* val) { /*add new node to linked list
         {
             current->val = val; /*update the existing alias */
             free(newNode);/*release the new node we dont need it*/
-            printf("Alias has been updated");
+            printf("Alias has been updated \n");
             return;
         }
         current->next = newNode; /*append new node to list*/

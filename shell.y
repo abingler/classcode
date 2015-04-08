@@ -127,7 +127,6 @@ command:
 		| set_env NEW_LINE
 		| print_env NEW_LINE
 		| unset_env NEW_LINE
-		| ls NEW_LINE
 		| alias NEW_LINE
 		| unalias NEW_LINE
 		;
@@ -184,12 +183,12 @@ unset_env:
 				printf("Variable %s does not exist.\n", name);
 		}
 
-ls:
+/*ls:
 	LS
 		{
 			ls();
 		}
-
+*/
 alias:
 	ALIAS
 		{

@@ -15,7 +15,6 @@ cd					return CD;
 setenv				return SETENV;
 printenv			return PRINTENV;
 unsetenv			return UNSETENV;
-ls					return LS;
 alias				return ALIAS;
 unalias				return UNALIAS;
 
