@@ -91,8 +91,6 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 
 /*string handling functions*/
 
-char* str_replace_first(char* string, char* substr, char* replacement);
-
 char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
 {
 	static char buffer[4096];
@@ -145,24 +143,6 @@ int has_whitespace(char* string)
     }
     return 0;
 }
-int only_whitespace(char* string)
-{
-    int i;
-    for (i = 0; i < strlen(string); i++)
-    {
-        if (string[i] != '\t' && string[i] != ' ') return 0;
-    }
-    return 1;
-}
-int has_character(char* string, char ch)
-{
-    int i;
-    for (i = 0; i < strlen(string); i++)
-    {
-        if (string[i] == ch) return 1;
-    }
-    return 0;
-}
 void replace_escape(char* str)
 {
     char* p_read = str;
@@ -172,17 +152,6 @@ void replace_escape(char* str)
         p_write += (*p_write != '\\' || *(p_write + 1) == '\\');
     }
     *p_write = '\0';
-}
-char* str_replace_first(char* string, char* substr, char* replacement)
-{
-    char* token = strstr(string, substr); //check for existence of substring in string
-    if(token == NULL) return strdup(string); //if no substring return string duplicate
-    char* replaced_string = malloc(strlen(string) - strlen(substr) + strlen(replacement) + 1);
-    memcpy(replaced_string, string, token - string);
-    memcpy(replaced_string + (token - string), replacement, strlen(replacement));
-    memcpy(replaced_string + (token - string) + strlen(replacement), token + strlen(substr), strlen(string) - strlen(substr) - (token - string));
-    memset(replaced_string + strlen(string) - strlen(substr) + strlen(replacement), 0, 1);
-    return replaced_string;
 }
 
 arg_node* split_to_tokens(char* string, char* delimiter)
@@ -216,7 +185,7 @@ arg_node* split_to_tokens(char* string, char* delimiter)
 
 
 /* Line 189 of yacc.c  */
-#line 220 "y.tab.c"
+#line 189 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -279,7 +248,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 151 "shell.y"
+#line 120 "shell.y"
 
         int number;
         char* string;
@@ -289,7 +258,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 293 "y.tab.c"
+#line 262 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -301,7 +270,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 305 "y.tab.c"
+#line 274 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -590,11 +559,11 @@ static const yytype_int8 yyrhs[] =
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint16 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,   167,   167,   168,   169,   172,   173,   174,   175,   176,
-     177,   178,   179,   180,   181,   186,   193,   198,   208,   217,
-     227,   237,   243,   247,   257,   263,   269,   276,   281
+       0,   136,   136,   137,   138,   141,   142,   143,   144,   145,
+     146,   147,   148,   149,   150,   155,   162,   167,   177,   186,
+     196,   206,   212,   216,   226,   232,   238,   245,   250
 };
 #endif
 
@@ -1517,14 +1486,14 @@ yyreduce:
         case 3:
 
 /* Line 1455 of yacc.c  */
-#line 168 "shell.y"
+#line 137 "shell.y"
     {printf("%s> ",getenv("PWD"));}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 169 "shell.y"
+#line 138 "shell.y"
     {//printf("%s> ",getenv("PWD"));} /*print the current working dir*/
 	}
     break;
@@ -1532,7 +1501,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 187 "shell.y"
+#line 156 "shell.y"
     {
 			printf("Exiting the shell now...\n");
 			exit(0);
@@ -1542,7 +1511,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 194 "shell.y"
+#line 163 "shell.y"
     {
 			chdir(getenv("HOME"));  /*move to home*/
 			setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
@@ -1552,7 +1521,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 199 "shell.y"
+#line 168 "shell.y"
     {
 			(yyvsp[(2) - (2)].string) = insert_env((yyvsp[(2) - (2)].string)); /*extract env from word*/
 			chdir((yyvsp[(2) - (2)].string));			/*change dir*/
@@ -1565,7 +1534,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 209 "shell.y"
+#line 178 "shell.y"
     {
 			char* envName = insert_env((yyvsp[(2) - (3)].string));/*extract word1*/
 			char* envVal = insert_env((yyvsp[(3) - (3)].string));/*extract word2*/
@@ -1578,7 +1547,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 218 "shell.y"
+#line 187 "shell.y"
     {		
 			extern char **environ;	
 			int i=0;
@@ -1592,7 +1561,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 228 "shell.y"
+#line 197 "shell.y"
     {
 			char* name = (yyvsp[(2) - (2)].string);
 			if(getenv(name))
@@ -1605,7 +1574,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 238 "shell.y"
+#line 207 "shell.y"
     {
 			ls();
 		}
@@ -1614,7 +1583,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 244 "shell.y"
+#line 213 "shell.y"
     {
 			print_alias_list(alias_head);/*prints list*/
 		}
@@ -1623,7 +1592,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 248 "shell.y"
+#line 217 "shell.y"
     { 
 			if(retrieve_val( alias_head,(yyvsp[(2) - (3)].string)) != NULL){
 				remove_by_alias(&alias_head, (yyvsp[(2) - (3)].string)); //remove existing alias
@@ -1636,7 +1605,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 258 "shell.y"
+#line 227 "shell.y"
     {
 			remove_by_alias(&alias_head, (yyvsp[(2) - (2)].string));
 		}
@@ -1645,7 +1614,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 263 "shell.y"
+#line 232 "shell.y"
     { (yyval.arg_n) = malloc(sizeof(arg_node));
                     (yyval.arg_n)->next = (yyvsp[(2) - (2)].arg_n);
                     (yyval.arg_n)->arg_str = (yyvsp[(1) - (2)].string);
@@ -1656,7 +1625,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 269 "shell.y"
+#line 238 "shell.y"
     {  (yyval.arg_n) = (yyvsp[(1) - (2)].arg_n);
                      arg_node* current = (yyvsp[(1) - (2)].arg_n);
                      while (current->next != NULL) current = current->next;
@@ -1668,7 +1637,7 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 276 "shell.y"
+#line 245 "shell.y"
     { (yyval.arg_n) = (yyvsp[(1) - (1)].arg_n); 
     				printf("%s\n",(yyvsp[(1) - (1)].arg_n) );
     				}
@@ -1677,7 +1646,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 281 "shell.y"
+#line 250 "shell.y"
     { (yyval.arg_n) = malloc(sizeof(arg_node));
                     (yyval.arg_n)->next = NULL;
                     (yyval.arg_n)->arg_str = (yyvsp[(1) - (1)].string);
@@ -1688,7 +1657,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1692 "y.tab.c"
+#line 1661 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1900,5 +1869,5 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 287 "shell.y"
+#line 256 "shell.y"
 

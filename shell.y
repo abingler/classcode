@@ -20,8 +20,6 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 
 /*string handling functions*/
 
-char* str_replace_first(char* string, char* substr, char* replacement);
-
 char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
 {
 	static char buffer[4096];
@@ -74,24 +72,6 @@ int has_whitespace(char* string)
     }
     return 0;
 }
-int only_whitespace(char* string)
-{
-    int i;
-    for (i = 0; i < strlen(string); i++)
-    {
-        if (string[i] != '\t' && string[i] != ' ') return 0;
-    }
-    return 1;
-}
-int has_character(char* string, char ch)
-{
-    int i;
-    for (i = 0; i < strlen(string); i++)
-    {
-        if (string[i] == ch) return 1;
-    }
-    return 0;
-}
 void replace_escape(char* str)
 {
     char* p_read = str;
@@ -101,17 +81,6 @@ void replace_escape(char* str)
         p_write += (*p_write != '\\' || *(p_write + 1) == '\\');
     }
     *p_write = '\0';
-}
-char* str_replace_first(char* string, char* substr, char* replacement)
-{
-    char* token = strstr(string, substr); //check for existence of substring in string
-    if(token == NULL) return strdup(string); //if no substring return string duplicate
-    char* replaced_string = malloc(strlen(string) - strlen(substr) + strlen(replacement) + 1);
-    memcpy(replaced_string, string, token - string);
-    memcpy(replaced_string + (token - string), replacement, strlen(replacement));
-    memcpy(replaced_string + (token - string) + strlen(replacement), token + strlen(substr), strlen(string) - strlen(substr) - (token - string));
-    memset(replaced_string + strlen(string) - strlen(substr) + strlen(replacement), 0, 1);
-    return replaced_string;
 }
 
 arg_node* split_to_tokens(char* string, char* delimiter)
