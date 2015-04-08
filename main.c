@@ -33,6 +33,104 @@ int main()
 	return 0;
 } 
 
+commandBlock(arg_node* args)
+{
+	args = aliasArgReplace(args);
+	while (args != NULL)
+        {
+            printf("%s\n",args->arg_str);
+            args = args->next;
+        }
+
+}
+
+char* retrieve_val(node_t* head, char* alias)/*search the list and return the value of a given alias */
+{
+    node_t* current = head;
+    while (current != NULL) /*while not at the end of list*/
+    {
+        if (strcmp(current->alias, alias) == 0)/*if match found*/
+        {
+            return current->val; /*return the val*/
+        }
+        current = current->next;/*else keep looking*/
+    }
+    return NULL; /*no match found*/
+}
+
+char* alias_replace(char* alias) 
+{
+    char* val = retrieve_val(alias_head, alias);/*look for alias and return matching value*/
+    if (val != NULL) return val; /*if the alias exists return value*/
+    return alias; /*else return the original input*/
+}
+
+arg_node* split_to_tokens(char* string, char* delimiter)
+{
+    char* token;
+    char* tmp = strdup(string);
+    token = strtok(tmp, delimiter);
+    arg_node* head = malloc(sizeof(arg_node));
+    head->next = NULL;
+    if (token != NULL)
+    {
+        head->arg_str = token;
+    }
+    else
+    {
+        head->arg_str = tmp;
+    }
+    arg_node* current = head;
+    token = strtok(NULL, delimiter); 
+    while (token != NULL)
+    {
+          current->next = malloc(sizeof(arg_node));
+          current = current->next;
+          current->arg_str = token;
+          current->next = NULL;  
+          token = strtok(NULL, delimiter); 
+    }
+    return head;
+}
+
+
+aliasArgReplace(arg_node* args){
+	arg_node* original = args; //first
+	int nestedAliasCount = 0;
+	int aliasCount = 0; //guard against infinite expansion
+	while(nestedAliasCount<100){
+		while(args->arg_str != alias_replace(args->arg_str) && aliasCount < 100) //where an alias exists
+        	{
+        		args->arg_str = alias_replace(args->arg_str);
+       		 	aliasCount++;
+        	}
+        	if (aliasCount == 100 || aliasCount == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
+        	if (hasWhitespace(args->arg_str) && !whitespaceOnly(args->arg_str)) //if spaces exist in alias
+        	{
+        		args = split_to_tokens(args->arg_str, " \t"); //break it into tokens about the spaces
+        	    arg_node* currentNode = args; //define the current nose
+        	    while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
+        	    currentNode->next = original->next;// reset current node -> next for next loop
+        	    free(original);
+        	}
+        	else break;//no nested alias
+        	nestedAliasCount++;
+    	}
+		if (nestedAliasCount != 100 && aliasCount != 100) return args; //function succsefull
+		else
+		{
+        fprintf(stderr, "on line %d: infinite alias error occured\n", yylineno);
+        arg_node* prev = NULL;//empty args list and free nodes
+        while (args != NULL)
+        {
+            prev = args;
+            args = args->next;
+            free(prev);
+        }
+        return NULL;
+    }
+}
+
 
 void ls(){
 	int process;
@@ -106,25 +204,4 @@ int remove_by_alias(node_t** head, char * alias) { /*search for a node with a ma
     return 0;
 }
 
-char* retrieve_val(node_t* head, char* alias)/*search the list and return the value of a given alias */
-{
-    node_t* current = head;
-    while (current != NULL) /*while not at the end of list*/
-    {
-        if (strcmp(current->alias, alias) == 0)/*if match found*/
-        {
-            return current->val; /*return the val*/
-        }
-        current = current->next;/*else keep looking*/
-    }
-    return NULL; /*no match found*/
-}
-
-
-char* alias_replace(char* alias) 
-{
-    char* val = retrieve_val(alias_head, alias);/*look for alias and return matching value*/
-    if (val != NULL) return val; /*if the alias exists return value*/
-    return alias; /*else return the original input*/
-}
 

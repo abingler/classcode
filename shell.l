@@ -25,7 +25,7 @@ unalias				return UNALIAS;
 							char* text=strdup(yytext);
                         	text=insert_env(text);
                         	replace_escape(text);
-                        	if (has_whitespace(text))
+                        	if (hasWhitespace(text))
                         	{
                         		yylval.arg_n = split_to_tokens(text, " \t");
                         	    return ARGS;

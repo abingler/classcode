@@ -62,16 +62,6 @@ char * insert_env(char* input){ /*function extrats env variable*/
 	return s;
 }
 
-
-int has_whitespace(char* string)
-{
-    int i;
-    for (i = 0; i < strlen(string); i++)
-    {
-        if (string[i] == '\t' || string[i] == ' ') return 1;
-    }
-    return 0;
-}
 void replace_escape(char* str)
 {
     char* p_read = str;
@@ -83,33 +73,26 @@ void replace_escape(char* str)
     *p_write = '\0';
 }
 
-arg_node* split_to_tokens(char* string, char* delimiter)
+int hasWhitespace(char* string)
 {
-    char* token;
-    char* tmp = strdup(string);
-    token = strtok(tmp, delimiter);
-    arg_node* head = malloc(sizeof(arg_node));
-    head->next = NULL;
-    if (token != NULL)
+    int i;
+    for (i = 0; i < strlen(string); i++)
     {
-        head->arg_str = token;
+        if (string[i] == '\t' || string[i] == ' ') return 1;
     }
-    else
-    {
-        head->arg_str = tmp;
-    }
-    arg_node* current = head;
-    token = strtok(NULL, delimiter); 
-    while (token != NULL)
-    {
-          current->next = malloc(sizeof(arg_node));
-          current = current->next;
-          current->arg_str = token;
-          current->next = NULL;  
-          token = strtok(NULL, delimiter); 
-    }
-    return head;
+    return 0;
 }
+
+int whitespaceOnly(char* string)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] != '\t' && string[i] != ' ') return 0;
+    }
+    return 1;
+}
+
 
 %}
 
@@ -135,8 +118,7 @@ arg_node* split_to_tokens(char* string, char* delimiter)
 
 commands:
 		| commands command 	{printf("%s> ",getenv("PWD"));}
-		| commands arg_list {//printf("%s> ",getenv("PWD"));} /*print the current working dir*/
-	}
+		| commands arg_list {commandBlock($2);}
 
 command:
 		| NEW_LINE /* ignore new line*/
@@ -229,25 +211,25 @@ arg_list:
     WORD arg_list { $$ = malloc(sizeof(arg_node));
                     $$->next = $2;
                     $$->arg_str = $1;
-                    printf("%s\n",$1 );
+                    //printf("%s\n",$1 );
                 	}
     |
     ARGS arg_list {  $$ = $1;
                      arg_node* current = $1;
                      while (current->next != NULL) current = current->next;
                      current->next = $2;
-                     printf("%s\n",$1 );
+                     //printf("%s\n",$1 );
                  }
     |
     ARGS          { $$ = $1; 
-    				printf("%s\n",$1 );
+    				//printf("%s\n",$1 );
     				}
 
     |
     WORD          { $$ = malloc(sizeof(arg_node));
                     $$->next = NULL;
                     $$->arg_str = $1;
-                    printf("%s\n",$1 ); 
+                    //printf("%s\n",$1 ); 
                 }
     ;
 %%
