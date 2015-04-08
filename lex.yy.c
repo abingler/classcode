@@ -851,7 +851,7 @@ yylval.string=strdup(yytext); return WORD;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 23 "shell.l"
+#line 24 "shell.l"
 {
 							char* text=strdup(yytext);
                         	text=insert_env(text);
@@ -865,23 +865,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 34 "shell.l"
+#line 35 "shell.l"
 return NEW_LINE;
 	YY_BREAK
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 35 "shell.l"
+#line 36 "shell.l"
 return NEW_LINE;       
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 36 "shell.l"
+#line 37 "shell.l"
 /* ignore whitespace */;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 37 "shell.l"
+#line 38 "shell.l"
 ECHO;
 	YY_BREAK
 #line 888 "lex.yy.c"
@@ -1894,7 +1894,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 37 "shell.l"
+#line 38 "shell.l"
 
 
 

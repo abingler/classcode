@@ -1,6 +1,6 @@
 all: shell
 
-shell: y.tab.o lex.yy.o
+shell: y.tab.o lex.yy.o main.c
 	cc lex.yy.o y.tab.o -o shell
 
 lex.yy.o: lex.yy.c
@@ -15,6 +15,12 @@ lex.yy.c: shell.l
 y.tab.c: shell.y
 	yacc -d shell.y
 
-main.c: main.c
+main.o: main.c
 	gcc main.c
 
+clean:
+	rm *.o
+	rm lex.yy.c
+	rm y.tab.c
+	rm y.tab.h 
+	rm shell

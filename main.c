@@ -41,6 +41,7 @@ commandBlock(arg_node* args)
             printf("%s\n",args->arg_str);
             args = args->next;
         }*/
+            //asdaf
 
 }
 
