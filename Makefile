@@ -14,3 +14,7 @@ lex.yy.c: shell.l
 
 y.tab.c: shell.y
 	yacc -d shell.y
+
+main.c: main.c
+	gcc main.c
+

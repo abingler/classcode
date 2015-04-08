@@ -73,7 +73,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 189 "shell.y"
+#line 29 "shell.y"
 
         int number;
         char* string;

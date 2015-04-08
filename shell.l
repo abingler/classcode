@@ -19,6 +19,7 @@ unalias				return UNALIAS;
 
 [a-zA-Z0-9\/.-]+ yylval.string=strdup(yytext); return WORD;
 
+;         			return NEW_LINE;
 \n         			return NEW_LINE;       
 [ \t]+                  /* ignore whitespace */;
 %%
