@@ -38,7 +38,7 @@ void ls(){
 	int process;
 	process = fork();
 	if(process > 0)		/* parent */
-		wait((int*)0);
+		wait((int*)0); //Casting zero to an int pointer?
 	else if(process == 0)	/* child */
 	{
 		execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search current direct*/
@@ -69,6 +69,7 @@ void push(node_t** head, char* alias, char* val) { /*add new node to linked list
         {
             current->val = val; /*update the existing alias */
             free(newNode);/*release the new node we dont need it*/
+            printf("Alias has been updated");
             return;
         }
         current->next = newNode; /*append new node to list*/

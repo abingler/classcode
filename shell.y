@@ -215,9 +215,6 @@ alias:
 		}
 	| ALIAS WORD WORD
 		{ 
-			if(retrieve_val( alias_head,$2) != NULL){
-				remove_by_alias(&alias_head, $2); //remove existing alias
-			}
 			push(&alias_head, $2, $3); /*add new Alias*/
 
 		}
