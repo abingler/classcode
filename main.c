@@ -36,11 +36,11 @@ int main()
 commandBlock(arg_node* args)
 {
 	args = aliasArgReplace(args);
-	while (args != NULL)
+	/*while (args != NULL)
         {
             printf("%s\n",args->arg_str);
             args = args->next;
-        }
+        }*/
 
 }
 
