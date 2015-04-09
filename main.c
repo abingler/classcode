@@ -40,7 +40,7 @@ void ls(){
         wait((int*)0); //Casting zero to an int pointer?
     else if(process == 0)   /* child */
     {
-        execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search current direct*/
+        execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search currentNode direct*/
         exit(1);
     }
     else if(process == -1)      /* can't create a new process */
@@ -53,12 +53,12 @@ void ls(){
 char * insertEnv(char* input);
 
 void cd(arg_node* args){
-    arg_node* current = args->next; //current equals arg after cd
+    arg_node* currentNode = args->next; //currentNode equals arg after cd
     int evenNodes = 0;
     int validCheck;
     char* location;
-    while(current != NULL && evenNodes!= 1){
-        current = current->next;
+    while(currentNode != NULL && evenNodes!= 1){
+        currentNode = currentNode->next;
         evenNodes++;
     }   
     if (evenNodes == 0){ //if no args go to home
@@ -84,25 +84,25 @@ void cd(arg_node* args){
 }
 
 void push(node_t** head, char* alias, char* val) { /*add new node to linked list*/
-    node_t* current = *head; /*define current as pointing to head*/
+    node_t* currentNode = *head; /*define currentNode as pointing to head*/
     node_t* newNode = malloc(sizeof(node_t)); /*make space for new node*/
     newNode->alias = alias; /*define properties of new node*/
     newNode->val = val;
     newNode->next = NULL; /*new node should be at the end of the list*/
-    if (current != NULL)/*if there is alredy a node in the list (not an empty list)*/
+    if (currentNode != NULL)/*if there is alredy a node in the list (not an empty list)*/
     {
-        while (current->next != NULL && strcmp(current->alias, alias) != 0) /*while their are more nodes in the list and the alias of the current node != to the new alias*/
+        while (currentNode->next != NULL && strcmp(currentNode->alias, alias) != 0) /*while their are more nodes in the list and the alias of the currentNode node != to the new alias*/
         {
-            current = current->next; /*iterate through the list*/
+            currentNode = currentNode->next; /*iterate through the list*/
         }
-        if (strcmp(current->alias, alias) == 0) /*if the alias you tried to add alredy exists*/
+        if (strcmp(currentNode->alias, alias) == 0) /*if the alias you tried to add alredy exists*/
         {
-            current->val = val; /*update the existing alias */
+            currentNode->val = val; /*update the existing alias */
             free(newNode);/*release the new node we dont need it*/
             printf("Alias has been updated \n");
             return;
         }
-        current->next = newNode; /*append new node to list*/
+        currentNode->next = newNode; /*append new node to list*/
     }
     else
     {
@@ -113,37 +113,37 @@ void push(node_t** head, char* alias, char* val) { /*add new node to linked list
 
 void printAliasList(node_t* head) /*print alias list duh*/
 {
-    node_t* current = head; /*define the passed in head as the current node*/
-    while (current != NULL)/*while there are nodes in the list*/
+    node_t* currentNode = head; /*define the passed in head as the currentNode node*/
+    while (currentNode != NULL)/*while there are nodes in the list*/
     {
-        printf("alias %s='%s'\n", current->alias, current->val); /*print info for current node*/
-        current = current->next;/*go to next node*/
+        printf("alias %s='%s'\n", currentNode->alias, currentNode->val); /*print info for currentNode node*/
+        currentNode = currentNode->next;/*go to next node*/
     }
 }
 
 int removeByAlias(node_t** head, char * alias) { /*search for a node with a matching alias and remove it*/
-    node_t* current = *head; /*define start of list*/
+    node_t* currentNode = *head; /*define start of list*/
     node_t* prev = NULL; /*track previous node to repair list*/
     while (1) {/*search through list untill..*/
-        if (current == NULL) return -1; /*if end of the list is reached with out a match return -1 for err*/
-        if (strcmp(current->alias, alias) == 0) break;/*break if match is found*/
-        prev = current; /*iterate through list while tracking previous node*/
-        current = current->next;
+        if (currentNode == NULL) return -1; /*if end of the list is reached with out a match return -1 for err*/
+        if (strcmp(currentNode->alias, alias) == 0) break;/*break if match is found*/
+        prev = currentNode; /*iterate through list while tracking previous node*/
+        currentNode = currentNode->next;
     }
-    if (current == *head) *head = current->next; /*id the first node is a match make the second node the new head*/
-    if (prev != NULL) prev->next = current->next;/*make the previous node point to the node after the deleted node assuming that a previous node exists*/
-    free(current); /*delete current node*/
+    if (currentNode == *head) *head = currentNode->next; /*id the first node is a match make the second node the new head*/
+    if (prev != NULL) prev->next = currentNode->next;/*make the previous node point to the node after the deleted node assuming that a previous node exists*/
+    free(currentNode); /*delete currentNode node*/
     return 0;
 }
 
 void alias(arg_node* args)
 {
-    arg_node* currentNode = args->next;
+    arg_node* currentNodeNode = args->next;
     int n = 0;
-    while (currentNode != NULL && n != 2)
+    while (currentNodeNode != NULL && n != 2)
     {
         n++;
-        currentNode = currentNode->next;
+        currentNodeNode = currentNodeNode->next;
     }
     if (n == 2)
     {
@@ -170,6 +170,7 @@ void unalias(arg_node* args)
 commandBlock(arg_node* args)
 {
     arg_node* tempNode = args;
+    arg_node* currentNode = args;
     while(args->next!=NULL){
     args = args->next;
     args = aliasArgReplace(args);
@@ -177,11 +178,11 @@ commandBlock(arg_node* args)
     args = tempNode;
     args = aliasArgReplace(args);
 
-    current = args;
-    while (current != NULL)
+    currentNode = args;
+    while (currentNode != NULL)
     {
-        printf("%s\n",current->arg_val);
-        current = current->next;
+        printf("%s\n",currentNode->arg_val);
+        currentNode = currentNode->next;
     }
 
     if (args == NULL) return;
@@ -215,14 +216,14 @@ commandBlock(arg_node* args)
 
 char* retrieveVal(node_t* head, char* alias)/*search the list and return the value of a given alias */
 {
-    node_t* current = head;
-    while (current != NULL) /*while not at the end of list*/
+    node_t* currentNode = head;
+    while (currentNode != NULL) /*while not at the end of list*/
     {
-        if (strcmp(current->alias, alias) == 0)/*if match found*/
+        if (strcmp(currentNode->alias, alias) == 0)/*if match found*/
         {
-            return current->val; /*return the val*/
+            return currentNode->val; /*return the val*/
         }
-        current = current->next;/*else keep looking*/
+        currentNode = currentNode->next;/*else keep looking*/
     }
     return NULL; /*no match found*/
 }
@@ -249,14 +250,14 @@ arg_node* splitToTokens(char* string, char* delimiter)
     {
         head->arg_val = tmp;
     }
-    arg_node* current = head;
+    arg_node* currentNode = head;
     token = strtok(NULL, delimiter); 
     while (token != NULL)
     {
-          current->next = malloc(sizeof(arg_node));
-          current = current->next;
-          current->arg_val = token;
-          current->next = NULL;  
+          currentNode->next = malloc(sizeof(arg_node));
+          currentNode = currentNode->next;
+          currentNode->arg_val = token;
+          currentNode->next = NULL;  
           token = strtok(NULL, delimiter); 
     }
     return head;
@@ -282,9 +283,9 @@ aliasArgReplace(arg_node* args){
         	if (n2 == 100 || n2 == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
         	if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)){ //if spaces exist in alias
         		args = splitToTokens(args->arg_val, " \t"); //break it into tokens about the spaces
-        	    arg_node* currentNode = args; //define the current nose
-        	    while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
-        	    currentNode->next = original->next;// reset current node -> next for next loop
+        	    arg_node* currentNodeNode = args; //define the currentNode nose
+        	    while (currentNodeNode->next != NULL) currentNodeNode = currentNodeNode->next; //move to the next node while it exists
+        	    currentNodeNode->next = original->next;// reset currentNode node -> next for next loop
         	    free(original);
         	}
         	else break;//no nested alias        	
