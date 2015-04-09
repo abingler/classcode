@@ -16,12 +16,12 @@ typedef struct node { /*all nodes in alias linked list need a name value and poi
 	struct node* next;
 } node_t;
 
-node_t* alias_head; /*points to the head of the linked list*/
+node_t* aliasHead; /*points to the head of the linked list*/
 
 
 int main()
 {         
-	alias_head = NULL;
+	aliasHead = NULL;
 	printf("hello I am computer\n");
 	printf("I make am shell\n");
 	printf("wat do\n");
@@ -55,22 +55,22 @@ void ls(){
 commandBlock(arg_node* args)
 {
 	args = aliasArgReplace(args);
-	/*while (args != NULL)
+	while (args != NULL)
         {
-            printf("%s\n",args->arg_str);
+            const char* Commands[1] = {"ls",};
+            int i;
+            for(i = 0; i< 1; i++){
+                if (strcmp(args->arg_val, Commands[i]) == 0){
+                    switch (i){
+                        case 0:
+                            ls();
+                            return;
+                        }
+                    }
+                }
+            printf("%s\n",args->arg_val);
             args = args->next;
-        }*/
-    const char* Commands[1] = {"ls",};
-    int i;
-    for(i = 0; i< 1; i++){
-        if (strcmp(args->arg_str, Commands[i]) == 0){
-            switch (i){
-                case 0:
-                    ls();
-                    return;
             }
-        }
-    }
 }
 
 char* retrieve_val(node_t* head, char* alias)/*search the list and return the value of a given alias */
@@ -89,7 +89,7 @@ char* retrieve_val(node_t* head, char* alias)/*search the list and return the va
 
 char* alias_replace(char* alias) 
 {
-    char* val = retrieve_val(alias_head, alias);/*look for alias and return matching value*/
+    char* val = retrieve_val(aliasHead, alias);/*look for alias and return matching value*/
     if (val != NULL) return val; /*if the alias exists return value*/
     return alias; /*else return the original input*/
 }
@@ -103,11 +103,11 @@ arg_node* split_to_tokens(char* string, char* delimiter)
     head->next = NULL;
     if (token != NULL)
     {
-        head->arg_str = token;
+        head->arg_val = token;
     }
     else
     {
-        head->arg_str = tmp;
+        head->arg_val = tmp;
     }
     arg_node* current = head;
     token = strtok(NULL, delimiter); 
@@ -115,7 +115,7 @@ arg_node* split_to_tokens(char* string, char* delimiter)
     {
           current->next = malloc(sizeof(arg_node));
           current = current->next;
-          current->arg_str = token;
+          current->arg_val = token;
           current->next = NULL;  
           token = strtok(NULL, delimiter); 
     }
@@ -128,15 +128,15 @@ aliasArgReplace(arg_node* args){
 	int nestedAliasCount = 0;
 	int aliasCount = 0; //guard against infinite expansion
 	while(nestedAliasCount<100){
-		while(args->arg_str != alias_replace(args->arg_str) && aliasCount < 100) //where an alias exists
+		while(args->arg_val != alias_replace(args->arg_val) && aliasCount < 100) //where an alias exists
         	{
-        		args->arg_str = alias_replace(args->arg_str);
+        		args->arg_val = alias_replace(args->arg_val);
        		 	aliasCount++;
         	}
         	if (aliasCount == 100 || aliasCount == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
-        	if (hasWhitespace(args->arg_str) && !whitespaceOnly(args->arg_str)) //if spaces exist in alias
+        	if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)) //if spaces exist in alias
         	{
-        		args = split_to_tokens(args->arg_str, " \t"); //break it into tokens about the spaces
+        		args = split_to_tokens(args->arg_val, " \t"); //break it into tokens about the spaces
         	    arg_node* currentNode = args; //define the current nose
         	    while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
         	    currentNode->next = original->next;// reset current node -> next for next loop
@@ -191,7 +191,7 @@ void push(node_t** head, char* alias, char* val) { /*add new node to linked list
     
 }
 
-void print_alias_list(node_t* head) /*print alias list duh*/
+void printAliasList(node_t* head) /*print alias list duh*/
 {
     node_t* current = head; /*define the passed in head as the current node*/
     while (current != NULL)/*while there are nodes in the list*/
@@ -201,7 +201,7 @@ void print_alias_list(node_t* head) /*print alias list duh*/
     }
 }
 
-int remove_by_alias(node_t** head, char * alias) { /*search for a node with a matching alias and remove it*/
+int removeByAlias(node_t** head, char * alias) { /*search for a node with a matching alias and remove it*/
     node_t* current = *head; /*define start of list*/
     node_t* prev = NULL; /*track previous node to repair list*/
     while (1) {/*search through list untill..*/
