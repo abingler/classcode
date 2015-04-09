@@ -39,33 +39,23 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     CD = 258,
-     BYE = 259,
-     PRINTENV = 260,
-     SETENV = 261,
-     UNSETENV = 262,
-     NEWLINE = 263,
-     ALIAS = 264,
-     UNALIAS = 265,
-     LS = 266,
-     WORD = 267,
-     CHANGE_DIR = 268,
-     ARGS = 269
+     BYE = 258,
+     PRINTENV = 259,
+     SETENV = 260,
+     UNSETENV = 261,
+     NEWLINE = 262,
+     WORD = 263,
+     ARGS = 264
    };
 #endif
 /* Tokens.  */
-#define CD 258
-#define BYE 259
-#define PRINTENV 260
-#define SETENV 261
-#define UNSETENV 262
-#define NEWLINE 263
-#define ALIAS 264
-#define UNALIAS 265
-#define LS 266
-#define WORD 267
-#define CHANGE_DIR 268
-#define ARGS 269
+#define BYE 258
+#define PRINTENV 259
+#define SETENV 260
+#define UNSETENV 261
+#define NEWLINE 262
+#define WORD 263
+#define ARGS 264
 
 
 
@@ -85,7 +75,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 89 "y.tab.h"
+#line 79 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -23,7 +23,7 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 %}
 
 
-%token CD BYE PRINTENV SETENV UNSETENV NEWLINE ALIAS UNALIAS LS
+%token BYE PRINTENV SETENV UNSETENV NEWLINE
 
 %union
 {
@@ -34,7 +34,7 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 }
 
 
-%left CHANGE_DIR ALIAS WORD
+
 %token <string> WORD
 %token <arg_n> ARGS
 %type <arg_n> arg_list
@@ -49,12 +49,9 @@ commands:
 command:
 		| NEWLINE /* ignore new line*/
 		| bye  NEWLINE
-		
 		| setEnv NEWLINE
 		| printEnv NEWLINE
 		| unsetEnv NEWLINE
-		| alias NEWLINE
-		| unalias NEWLINE
 		;
 
 
@@ -65,20 +62,20 @@ bye:
 			exit(0);
 		};
 
-cd: 
-	CD	
-		{
-			chdir(getenv("HOME"));  /*move to home*/
-			setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
-		}
-	| CD WORD
-		{
-			$2 = insertEnv($2); /*extract env from word*/
-			chdir($2);			/*change dir*/
-			char pwd[4096];
-			getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
-			setenv("PWD", pwd, 1); /*update PWD*/
-		};
+//cd: 
+//	CD	
+//		{
+//			chdir(getenv("HOME"));  /*move to home*/
+//			setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
+//		}
+//	| CD WORD
+//		{
+//			$2 = insertEnv($2); /*extract env from word*/
+//			chdir($2);			/*change dir*/
+//			char pwd[4096];
+//			getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
+//			setenv("PWD", pwd, 1); /*update PWD*/
+//		};
 		
 setEnv:
 	SETENV WORD WORD
@@ -114,15 +111,15 @@ unsetEnv:
 		{
 			ls();
 		}
-*/
+
 alias:
 	ALIAS
 		{
-			printAliasList(aliasHead);/*prints list*/
+			printAliasList(aliasHead);/*prints list
 		}
 	| ALIAS WORD WORD
 		{ 
-			push(&aliasHead, $2, $3); /*add new Alias*/
+			push(&aliasHead, $2, $3); /*add new Alias
 
 		}
 			
@@ -131,7 +128,7 @@ unalias:
 		{
 			removeByAlias(&aliasHead, $2);
 		}
-
+*/
 arg_list:
     WORD arg_list { $$ = malloc(sizeof(arg_node));
                     $$->next = $2;
