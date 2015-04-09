@@ -308,6 +308,48 @@ aliasArgReplace(arg_node* args){
 }
 
 
+<<<<<<< HEAD
+=======
+/*Alias Linked List*/
+
+void push(node_t** head, char* alias, char* val) { /*add new node to linked list*/
+    node_t* current = *head; /*define current as pointing to head*/
+    node_t* newNode = malloc(sizeof(node_t)); /*make space for new node*/
+    newNode->alias = alias; /*define properties of new node*/
+    newNode->val = val;
+    newNode->next = NULL; /*new node should be at the end of the list*/
+    if (current != NULL)/*if there is alredy a node in the list (not an empty list)*/
+    {
+        while (current->next != NULL && strcmp(current->alias, alias) != 0) /*while their are more nodes in the list and the alias of the current node != to the new alias*/
+        {
+            current = current->next; /*iterate through the list*/
+        }
+        if (strcmp(current->alias, alias) == 0) /*if the alias you tried to add alredy exists*/
+        {
+            current->val = val; /*update the existing alias */
+            free(newNode);/*release the new node we dont need it*/
+            printf("Alias %s has been updated \n", alias);
+            return;
+        }
+        current->next = newNode; /*append new node to list*/
+    }
+    else
+    {
+        *head = newNode; /*place new node at the head of the empty list*/
+    }
+    
+}
+
+void printAliasList(node_t* head) /*print alias list duh*/
+{
+    node_t* current = head; /*define the passed in head as the current node*/
+    while (current != NULL)/*while there are nodes in the list*/
+    {
+        printf("alias %s='%s'\n", current->alias, current->val); /*print info for current node*/
+        current = current->next;/*go to next node*/
+    }
+}
+>>>>>>> origin/master
 
 
 
