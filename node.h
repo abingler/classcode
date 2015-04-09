@@ -8,7 +8,7 @@
 #include <pwd.h>
 #include <glob.h>
 typedef struct args_node {
-    char* arg_str;
+    char* arg_val;
     struct args_node * next;
 } arg_node;
 #endif

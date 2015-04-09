@@ -50,27 +50,77 @@ void ls(){
     }
 }
 
+char * insertEnv(char* input);
 
+void cd(arg_node* args){
+    arg_node* current = args->next; //current equals arg after cd
+    int evenNodes = 0;
+    int validCheck;
+    char* location;
+    while(current != NULL && evenNodes!= 1){
+        current = current->next;
+        evenNodes++;
+    }   
+    if (evenNodes == 0){ //if no args go to home
+        if (getenv("HOME") != NULL){
+            location = (getenv("HOME"));  /*move to home*/
+        }
+        else{
+        fprintf(stderr, "error at line %d: 'HOME' == NULL\n", yylineno); 
+        }
+    }
+    else{
+        printf("args->arg_val = %s \n",args->arg_val);
+        printf("args->next->arg_val = %s \n",args->next->arg_val);
+        //location = args->next->arg_val;          /*change dir*/
+        args = args->next;
+        location = args->arg_val;
+    }
+    validCheck = chdir(location); //attempt to change path and check if its valid
+    if (validCheck != 0) fprintf(stderr, "error at line %d:'%s' does not exist here\n", yylineno, location);
+    char pwd[4096];
+    getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
+    setenv("PWD", pwd, 1);
+}
 
 commandBlock(arg_node* args)
 {
+    arg_node* current = args;
+    while (current != NULL)
+    {
+        printf("%s\n",current->arg_val);
+        current = current->next;
+    }
 	args = aliasArgReplace(args);
-	while (args != NULL)
-        {
-            const char* Commands[1] = {"ls",};
-            int i;
-            for(i = 0; i< 1; i++){
-                if (strcmp(args->arg_val, Commands[i]) == 0){
-                    switch (i){
-                        case 0:
-                            ls();
-                            return;
-                        }
-                    }
+    current = args;
+    while (current != NULL)
+    {
+        printf("%s\n",current->arg_val);
+        current = current->next;
+    }
+
+    if (args == NULL) return;
+    const char* Commands[2] = {"ls","cd"};
+    int i;
+    for(i = 0; i< 2; i++){
+        if (strcmp(args->arg_val, Commands[i]) == 0){
+            switch (i){
+                case 0:
+                    ls();
+                    printf("debug: exit ls function \n");
+                    return;
+                case 1:
+                    cd(args);
+                    printf("debug: exit cd function \n");
+                    return;
+
                 }
-            printf("%s\n",args->arg_val);
-            args = args->next;
             }
+    }
+    
+
+    
+    
 }
 
 char* retrieve_val(node_t* head, char* alias)/*search the list and return the value of a given alias */
@@ -94,7 +144,7 @@ char* alias_replace(char* alias)
     return alias; /*else return the original input*/
 }
 
-arg_node* split_to_tokens(char* string, char* delimiter)
+arg_node* splitToTokens(char* string, char* delimiter)
 {
     char* token;
     char* tmp = strdup(string);
@@ -124,37 +174,57 @@ arg_node* split_to_tokens(char* string, char* delimiter)
 
 
 aliasArgReplace(arg_node* args){
-	arg_node* original = args; //first
-	int nestedAliasCount = 0;
-	int aliasCount = 0; //guard against infinite expansion
-	while(nestedAliasCount<100){
-		while(args->arg_val != alias_replace(args->arg_val) && aliasCount < 100) //where an alias exists
+	int n = 0;
+	int n2 = 0; //guard against infinite expansion
+    arg_node* original = args; //first
+    arg_node* currentNode = args;
+	while(n<100){
+        n2 =0;
+        printf("debug: alias_replace(args->arg_val) = %s\n",alias_replace(args->arg_val));
+        while(args->arg_val != alias_replace(args->arg_val) && n2 < 100) //where an alias exists
         	{
         		args->arg_val = alias_replace(args->arg_val);
-       		 	aliasCount++;
+                printf("debug1a args->arg_val = %s\n",args->arg_val );
+                if(args->next != NULL){
+                    args = args->next;
+                    printf("debug1b args->arg_val = %s\n",args->arg_val );
+                }
+       		 	n2++;
         	}
-        	if (aliasCount == 100 || aliasCount == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
-        	if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)) //if spaces exist in alias
-        	{
-        		args = split_to_tokens(args->arg_val, " \t"); //break it into tokens about the spaces
+            printf("debug2 before break, n2 = %d\n",n2);
+            printf("debug3 before break, n = %d\n",n);
+        	if (n2 == 100 || n2 == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
+            /*
+        	if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)){ //if spaces exist in alias
+        		args = splitToTokens(args->arg_val, " \t"); //break it into tokens about the spaces
         	    arg_node* currentNode = args; //define the current nose
         	    while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
         	    currentNode->next = original->next;// reset current node -> next for next loop
         	    free(original);
         	}
         	else break;//no nested alias
-        	nestedAliasCount++;
-    	}
-		if (nestedAliasCount != 100 && aliasCount != 100) return args; //function succsefull
-		else
-		{
+            printf("debug no break args->arg_val = %s\n",args->arg_val );
+            printf("debug2 args->arg_val = %s\n",args->arg_val );
+        	*/
+        n++;
+    }
+    printf("debug2 after break, n2 = %d\n",n2);
+    printf("debug3 after break, n = %d\n",n);   
+	if (n != 100 && n2 != 100) { 
+        printf("debug4 inside if args->arg_val = %s\n",args->arg_val ); 
+        args->next = original->next;
+        //free(original);
+        printf("debug4 inside if args->arg_val = %s\n",args->arg_val ); 
+        return args;
+    } //function succsefull
+	else
+	{
         fprintf(stderr, "on line %d: infinite alias error occured\n", yylineno);
         arg_node* prev = NULL;//empty args list and free nodes
-        while (args != NULL)
-        {
-            prev = args;
-            args = args->next;
-            free(prev);
+        while (args != NULL){
+                prev = args;
+                args = args->next;
+                free(prev);
         }
         return NULL;
     }
@@ -217,3 +287,77 @@ int removeByAlias(node_t** head, char * alias) { /*search for a node with a matc
 }
 
 
+/*string handling functions*/
+
+char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
+{
+    static char buffer[4096];
+    char *p;
+    if(!(p = strstr(str, orig))) return str; /*is orig in str*/
+    
+    strncpy(buffer, str, p-str); /*copy char from str start to orig into buffer*/
+    buffer[p-str] = '\0';
+    
+    sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
+    
+    return buffer;
+}
+
+char * insertEnv(char* input){ /*function extrats env variable*/
+    char * s = input;
+    int i;
+    int validFlag = 0;
+    int start;
+    int end;
+    for (i = 0; i < strlen(s); i++) /*iterate through input*/
+    {
+        if(s[i] == '$') start = i;
+        if(s[i] == '{' && i == start+1) validFlag = 1;
+        if(s[i] == '}' && validFlag)
+        {
+            char subbuf[4096];
+            memcpy(subbuf, &s[start], i-start+1);
+            subbuf[i-start+1] = '\0';
+
+            char * var; /*extrat var from ${var}*/
+            copystring(var, subbuf);
+            var = var + 2;              //get rid of ${
+            var[i-start-2] = '\0';          //get rid of ending }
+            
+            s = replace(s, subbuf, getenv(var));
+        }
+    
+    }
+    return s;
+}
+
+void replaceEscape(char* str)
+{
+    char* p_read = str;
+    char* p_write = str;
+    while (*p_read) {
+        *p_write = *p_read++;
+        p_write += (*p_write != '\\' || *(p_write + 1) == '\\');
+    }
+    *p_write = '\0';
+}
+
+int hasWhitespace(char* string)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] == '\t' || string[i] == ' ') return 1;
+    }
+    return 0;
+}
+
+int whitespaceOnly(char* string)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] != '\t' && string[i] != ' ') return 0;
+    }
+    return 1;
+}

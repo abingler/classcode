@@ -44,7 +44,7 @@
      PRINTENV = 260,
      SETENV = 261,
      UNSETENV = 262,
-     NEW_LINE = 263,
+     NEWLINE = 263,
      ALIAS = 264,
      UNALIAS = 265,
      LS = 266,
@@ -59,7 +59,7 @@
 #define PRINTENV 260
 #define SETENV 261
 #define UNSETENV 262
-#define NEW_LINE 263
+#define NEWLINE 263
 #define ALIAS 264
 #define UNALIAS 265
 #define LS 266
@@ -75,7 +75,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 103 "shell.y"
+#line 29 "shell.y"
 
         int number;
         char* string;
