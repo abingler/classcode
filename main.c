@@ -23,7 +23,7 @@ int main()
 {         
 	aliasHead = NULL;
 	printf("hello I am computer\n");
-	printf("I make am shell\n");
+	printf("I make the shell\n");
 	printf("wat do\n");
 
 	while(1){	
@@ -70,8 +70,8 @@ void cd(arg_node* args){
         }
     }
     else{
-        printf("args->arg_val = %s \n",args->arg_val);
-        printf("args->next->arg_val = %s \n",args->next->arg_val);
+        //printf("args->arg_val = %s \n",args->arg_val);
+        //printf("args->next->arg_val = %s \n",args->next->arg_val);
         //location = args->next->arg_val;          /*change dir*/
         args = args->next;
         location = args->arg_val;
@@ -120,13 +120,33 @@ void printAliasList(node_t* head) /*print alias list duh*/
         currentNode = currentNode->next;/*go to next node*/
     }
 }
+char* retrieveVal(node_t* head, char* alias)/*search the list and return the value of a given alias */
+{
+    node_t* currentNode = head;
+    while (currentNode != NULL) /*while not at the end of list*/
+    {
+        if (strcmp(currentNode->alias, alias) == 0)/*if match found*/
+        {
+            return currentNode->val; /*return the val*/
+        }
+        currentNode = currentNode->next;/*else keep looking*/
+    }
+    return NULL; /*no match found*/
+}
+
+char* aliasReplace(char* alias) 
+{
+    char* val = retrieveVal(aliasHead, alias);/*look for alias and return matching value*/
+    if (val != NULL) return val; /*if the alias exists return value*/
+    return alias; /*else return the original input*/
+}
 
 int removeByAlias(node_t** head, char * alias) { /*search for a node with a matching alias and remove it*/
     node_t* currentNode = *head; /*define start of list*/
     node_t* prev = NULL; /*track previous node to repair list*/
     while (1) {/*search through list untill..*/
         if (currentNode == NULL) return -1; /*if end of the list is reached with out a match return -1 for err*/
-        if (strcmp(currentNode->alias, alias) == 0) break;/*break if match is found*/
+        if (strcmp(currentNode->val, alias) == 0) break;/*break if match is found*/
         prev = currentNode; /*iterate through list while tracking previous node*/
         currentNode = currentNode->next;
     }
@@ -138,12 +158,12 @@ int removeByAlias(node_t** head, char * alias) { /*search for a node with a matc
 
 void alias(arg_node* args)
 {
-    arg_node* currentNodeNode = args->next;
+    arg_node* currentNode = args->next;
     int n = 0;
-    while (currentNodeNode != NULL && n != 2)
+    while (currentNode != NULL && n != 2)
     {
         n++;
-        currentNodeNode = currentNodeNode->next;
+        currentNode = currentNode->next;
     }
     if (n == 2)
     {
@@ -162,9 +182,53 @@ void alias(arg_node* args)
 }
 void unalias(arg_node* args)
 {
-    if (args->next != NULL) removeByAlias(&aliasHead, args->next->arg_val);
+    if (args->next != NULL) {
+        printf("no next arg\n");
+        removeByAlias(&aliasHead, args->next->arg_val);}
     else fprintf(stderr, "error at line %d: too few args for unalias\n", yylineno);
 }
+void bye()
+{
+    printf("Exiting the shell now. Goodbye.\n");
+    exit(0);
+}
+
+void setEnv(arg_node* args)
+{
+    arg_node* currentNode = args->next;
+    if(currentNode->next != NULL && currentNode->next->next == NULL){//2 and only 2 vars
+        char* envName = insertEnv(currentNode->arg_val);/*extract word1*/
+        char* envVal = insertEnv(currentNode->next->arg_val);/*extract word2*/
+        int result = setenv(envName, envVal, 1);
+        if(result == -1){
+            printf("Failed to set variable %s to %s.\n", envName, envVal);
+        }
+    }
+    else{
+        printf("printenv requires 2 variables \n");
+    }
+
+};
+
+void printEnv()
+{       
+            extern char **environ;  
+            int i=0;
+            while(environ[i])
+                printf("%s\n", environ[i++]);
+            char* path = getenv("PATH");
+            printf("%s> \n",path);
+}
+
+void unsetEnv(arg_node* args){
+            arg_node* currentNode = args->next;
+            char* name = currentNode->arg_val;
+            if(getenv(name))
+                unsetenv(name);\
+            else
+                printf("Variable %s does not exist.\n", name);
+}
+
 
 
 commandBlock(arg_node* args)
@@ -186,24 +250,34 @@ commandBlock(arg_node* args)
     }
 
     if (args == NULL) return;
-    const char* Commands[4] = {"ls","cd","alias","unalias"};
+    const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
     int i;
-    for(i = 0; i< 4; i++){
+    for(i = 0; i< 8; i++){
         if (strcmp(args->arg_val, Commands[i]) == 0){
             switch (i){
                 case 0:
+                    bye();
+                case 1:
                     ls();
                     return;
-                case 1:
+                case 2:
                     cd(args);
                     return;
-                case 2:
+                case 3:
                     alias(args);
                     return;
-                case 3:
+                case 4:
                     unalias(args);
                     return;
-
+                case 5:
+                    setEnv(args);
+                    return;
+                case 6:
+                    printEnv();
+                    return;
+                case 7:
+                    unsetEnv(args);
+                    return;
 
                 }
             }
@@ -214,26 +288,6 @@ commandBlock(arg_node* args)
     
 }
 
-char* retrieveVal(node_t* head, char* alias)/*search the list and return the value of a given alias */
-{
-    node_t* currentNode = head;
-    while (currentNode != NULL) /*while not at the end of list*/
-    {
-        if (strcmp(currentNode->alias, alias) == 0)/*if match found*/
-        {
-            return currentNode->val; /*return the val*/
-        }
-        currentNode = currentNode->next;/*else keep looking*/
-    }
-    return NULL; /*no match found*/
-}
-
-char* aliasReplace(char* alias) 
-{
-    char* val = retrieveVal(aliasHead, alias);/*look for alias and return matching value*/
-    if (val != NULL) return val; /*if the alias exists return value*/
-    return alias; /*else return the original input*/
-}
 
 arg_node* splitToTokens(char* string, char* delimiter)
 {
@@ -265,12 +319,12 @@ arg_node* splitToTokens(char* string, char* delimiter)
 
 
 aliasArgReplace(arg_node* args){
-	int n = 0;
-	int n2 = 0; //guard against infinite expansion
+	int nestedAliasLoop = 0;
+	int aliasLoop = 0; //guard against infinite expansion
     arg_node* original = args; //first
-	while(n<100){
-        n2 =0;
-        while(args->arg_val != aliasReplace(args->arg_val) && n2 < 100) //where an alias exists
+	while(nestedAliasLoop<100){
+        aliasLoop =0;
+        while(args->arg_val != aliasReplace(args->arg_val) && aliasLoop < 100) //where an alias exists
         	{
         		args->arg_val = aliasReplace(args->arg_val);
                 /*printf("debug1a args->arg_val = %s\n",args->arg_val );
@@ -278,20 +332,20 @@ aliasArgReplace(arg_node* args){
                     args = args->next;
                     printf("debug1b args->arg_val = %s\n",args->arg_val );
                 }*/
-       		 	n2++;
+       		 	aliasLoop++;
         	}
-        	if (n2 == 100 || n2 == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
+        	if (aliasLoop == 100 || aliasLoop == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
         	if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)){ //if spaces exist in alias
         		args = splitToTokens(args->arg_val, " \t"); //break it into tokens about the spaces
-        	    arg_node* currentNodeNode = args; //define the currentNode nose
-        	    while (currentNodeNode->next != NULL) currentNodeNode = currentNodeNode->next; //move to the next node while it exists
-        	    currentNodeNode->next = original->next;// reset currentNode node -> next for next loop
+        	    arg_node* currentNode = args; //define the currentNode nose
+        	    while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
+        	    currentNode->next = original->next;// reset currentNode node -> next for next loop
         	    free(original);
         	}
         	else break;//no nested alias        	
-            n++;
+            nestedAliasLoop++;
     }
-	if (n != 100 && n2 != 100) { 
+	if (nestedAliasLoop != 100 && aliasLoop != 100) { 
         return args;
     } //function succsefull
 	else

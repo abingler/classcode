@@ -23,7 +23,7 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 %}
 
 
-%token BYE PRINTENV SETENV UNSETENV NEWLINE
+%token BYE NEWLINE
 
 %union
 {
@@ -46,21 +46,18 @@ commands:
 		| commands command 	{printf("%s> ",getenv("PWD"));}
 		| commands arg_list NEWLINE{commandBlock($2);printf("%s> ",getenv("PWD"));}
 
-command:
+command:/*commands moved to commandBlock in main.c*/
 		| NEWLINE /* ignore new line*/
-		| bye  NEWLINE
-		| setEnv NEWLINE
-		| printEnv NEWLINE
-		| unsetEnv NEWLINE
 		;
 
 
-bye:
+/*bye:
 	BYE
 		{
 			printf("Exiting the shell now...\n");
 			exit(0);
 		};
+*/
 
 //cd: 
 //	CD	
@@ -76,12 +73,12 @@ bye:
 //			getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
 //			setenv("PWD", pwd, 1); /*update PWD*/
 //		};
-		
+/*		
 setEnv:
 	SETENV WORD WORD
 		{
-			char* envName = insertEnv($<string>2);/*extract word1*/
-			char* envVal = insertEnv($<string>3);/*extract word2*/
+			char* envName = insertEnv($<string>2);/*extract word1
+			char* envVal = insertEnv($<string>3);/*extract word2
 			int result = setenv(envName, envVal, 1);
 			if(result == -1)
 				printf("Failed to set variable %s to %s.\n", envName, envVal);
@@ -96,6 +93,7 @@ printEnv:
 			char* path = getenv("PATH");
 			printf("%s> ",path);
 		}
+
 unsetEnv:
 	UNSETENV WORD 
 		{
@@ -105,7 +103,7 @@ unsetEnv:
 			else
 				printf("Variable %s does not exist.\n", name);
 		}
-
+*/
 /*ls:
 	LS
 		{
