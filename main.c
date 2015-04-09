@@ -249,7 +249,7 @@ void push(node_t** head, char* alias, char* val) { /*add new node to linked list
         {
             current->val = val; /*update the existing alias */
             free(newNode);/*release the new node we dont need it*/
-            printf("Alias has been updated \n");
+            printf("Alias %s has been updated \n", alias);
             return;
         }
         current->next = newNode; /*append new node to list*/
