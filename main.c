@@ -9,6 +9,7 @@
 #define copystring(a,b) strcpy((a=(char *)malloc(strlen(b)+1)),b)
 
 extern int yylineno;
+extern char** environ;
 
 typedef struct node { /*all nodes in alias linked list need a name value and pointer to the next node*/
 	char* alias;
@@ -35,12 +36,14 @@ int main()
 
 void ls(){
     int process;
+    char *const argv[2] = {"/bin/ls", NULL};
     process = fork();
     if(process > 0)     /* parent */
         wait((int*)0); //Casting zero to an int pointer?
     else if(process == 0)   /* child */
     {
-        execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search currentNode direct*/
+        execve( "/bin/ls", argv, environ ); //Execute commands
+        //execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search currentNode direct*/
         exit(1);
     }
     else if(process == -1)      /* can't create a new process */
@@ -233,6 +236,12 @@ void unsetEnv(arg_node* args){
 
 commandBlock(arg_node* args)
 {
+
+    /*Variable decs */
+    int outRedirects = 0;
+    char* outputRed = "";
+    char* inputRed;
+
     arg_node* tempNode = args;
     arg_node* currentNode = args;
     while(args->next!=NULL){
@@ -258,7 +267,7 @@ commandBlock(arg_node* args)
                 case 0:
                     bye();
                 case 1:
-                    ls();
+                    ls(); //Pass in argument if being written to file
                     return;
                 case 2:
                     cd(args);
@@ -273,7 +282,7 @@ commandBlock(arg_node* args)
                     setEnv(args);
                     return;
                 case 6:
-                    printEnv();
+                    printEnv(); //Pass in argument if being written to file
                     return;
                 case 7:
                     unsetEnv(args);
@@ -282,9 +291,32 @@ commandBlock(arg_node* args)
                 }
             }
     }
+
+    /*IO redirection by Andrew B */
+    /* 
+    1. Need to throw error if output for file makes no sense or if no file given
+    2. Handle case for "< file"
     
 
-    
+    arg_node* tempNode1 = args; 
+
+    while(tempNode1 != NULL){ //Check for >
+        if(tempNode1->next->arg_val == ">"){ //If node after current has >
+            if(tempNode1->next->next == NULL){
+                fprintf(stderr, "error at line %d: no output file specified after >\n", yylineno );
+                return;
+            }
+            outputRed = tempNode1->next->next->arg_val;
+        }
+    }
+
+    if(outputRed != ""){
+        FILE *outputfile = fopen(outputRED, "a+");
+        dup2(fileno(outputfile), STDOUT_FILENO);
+        fclose(outputfile);
+    }
+
+    */
     
 }
 

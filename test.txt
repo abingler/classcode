@@ -1,0 +1,4 @@
+ls
+setenv booty bigolbootybutts
+printenv
+bye

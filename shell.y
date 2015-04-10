@@ -50,6 +50,31 @@ command:/*commands moved to commandBlock in main.c*/
 		| NEWLINE /* ignore new line*/
 		;
 
+arg_list:
+    WORD arg_list { $$ = malloc(sizeof(arg_node));
+                    $$->next = $2;
+                    $$->arg_val = $1;}
+    |
+    ARGS arg_list {  $$ = $1;
+                     arg_node* current = $1;
+                     while (current->next != NULL) current = current->next;
+                     current->next = $2;
+                     //printf("%s\n",$1 );
+                 }
+    |
+    ARGS          { $$ = $1; 
+    				//printf("%s\n",$1 );
+    				}
+
+    |
+    WORD          { $$ = malloc(sizeof(arg_node));
+                    $$->next = NULL;
+                    $$->arg_val = $1;
+                    //printf("%s\n",$1 ); 
+                }
+    ;
+%%
+
 
 /*bye:
 	BYE
@@ -127,28 +152,5 @@ unalias:
 			removeByAlias(&aliasHead, $2);
 		}
 */
-arg_list:
-    WORD arg_list { $$ = malloc(sizeof(arg_node));
-                    $$->next = $2;
-                    $$->arg_val = $1;}
-    |
-    ARGS arg_list {  $$ = $1;
-                     arg_node* current = $1;
-                     while (current->next != NULL) current = current->next;
-                     current->next = $2;
-                     //printf("%s\n",$1 );
-                 }
-    |
-    ARGS          { $$ = $1; 
-    				//printf("%s\n",$1 );
-    				}
 
-    |
-    WORD          { $$ = malloc(sizeof(arg_node));
-                    $$->next = NULL;
-                    $$->arg_val = $1;
-                    //printf("%s\n",$1 ); 
-                }
-    ;
-%%
 
