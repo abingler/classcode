@@ -10,9 +10,11 @@
 
 %%
 
-[a-zA-Z0-9\/.-]+ yylval.string=strdup(yytext); return WORD;
+[a-zA-Z0-9\/.-]+ 		{ //One or more copies of a-z or A-Z or 0-9 or \ or / or . or - (This is a character class, so only ^ or - between chars has any effect)
+							yylval.string=strdup(yytext); return WORD; 
+						}
 
-[^ \t\r\n\v\f;]*        {
+[^ \f\n\r\t\v;]*        { //Zero or more copies of anything except, " \f\n\r\t\v"
 							char* text=strdup(yytext);
                         	text=insertEnv(text);
                         	replaceEscape(text);
@@ -23,7 +25,7 @@
                         	}
                      	}
 
-;         			return NEWLINE;
-\n         			return NEWLINE;       
+;         				return NEWLINE;
+\n         				return NEWLINE;       
 [ \t]+                  /* ignore whitespace */;
 %%
