@@ -715,7 +715,6 @@ void run_command(arg_node* args)
                     dup2(fileno(fp_out), STDOUT_FILENO);
                     fclose(fp_out);
                 }
-                printf("arg_table: %s argv: %s\n", arg_table[index]->arg_str, *argv);
                 execve( arg_table[index]->arg_str, argv, environ );
                 perror("execve"); //Print error
                 _exit(EXIT_FAILURE);
@@ -742,7 +741,6 @@ void run_command(arg_node* args)
                     close(pipe_array[n][0]); //Deallocates space
                     close(pipe_array[n][1]); //Deallocates space
                 }
-                printf("arg_table: %s argv: %s\n", arg_table[index]->arg_str, *argv);
                 execve( arg_table[index]->arg_str, argv, environ );
                 perror("execve"); //Print error
                 _exit(EXIT_FAILURE); //Exits calling process, value EXIT_FAILURE is returned to the parent process
@@ -770,7 +768,6 @@ void run_command(arg_node* args)
                     close(pipe_array[n][0]);//Close pipes again
                     close(pipe_array[n][1]);
                 }
-                printf("arg_table: %s argv: %s\n", arg_table[index]->arg_str, *argv);
                 execve( arg_table[index]->arg_str, argv, environ ); //Execute commands
                 perror("execve"); //Print error
                 _exit(EXIT_FAILURE);

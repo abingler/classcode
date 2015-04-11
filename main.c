@@ -232,95 +232,6 @@ void unsetEnv(arg_node* args){
                 printf("Variable %s does not exist.\n", name);
 }
 
-
-
-commandBlock(arg_node* args)
-{
-
-    /*Variable decs */
-    int outRedirects = 0;
-    char* outputRed = "";
-    char* inputRed;
-
-    arg_node* tempNode = args;
-    arg_node* currentNode = args;
-    while(args->next!=NULL){
-    args = args->next;
-    args = aliasArgReplace(args);
-    }
-    args = tempNode;
-    args = aliasArgReplace(args);
-
-    currentNode = args;
-    while (currentNode != NULL)
-    {
-        printf("%s\n",currentNode->arg_val);
-        currentNode = currentNode->next;
-    }
-
-    if (args == NULL) return;
-    const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
-    int i;
-    for(i = 0; i< 8; i++){
-        if (strcmp(args->arg_val, Commands[i]) == 0){
-            switch (i){
-                case 0:
-                    bye();
-                case 1:
-                    ls(); //Pass in argument if being written to file
-                    return;
-                case 2:
-                    cd(args);
-                    return;
-                case 3:
-                    alias(args);
-                    return;
-                case 4:
-                    unalias(args);
-                    return;
-                case 5:
-                    setEnv(args);
-                    return;
-                case 6:
-                    printEnv(); //Pass in argument if being written to file
-                    return;
-                case 7:
-                    unsetEnv(args);
-                    return;
-
-                }
-            }
-    }
-
-    /*IO redirection by Andrew B */
-    /* 
-    1. Need to throw error if output for file makes no sense or if no file given
-    2. Handle case for "< file"
-    
-
-    arg_node* tempNode1 = args; 
-
-    while(tempNode1 != NULL){ //Check for >
-        if(tempNode1->next->arg_val == ">"){ //If node after current has >
-            if(tempNode1->next->next == NULL){
-                fprintf(stderr, "error at line %d: no output file specified after >\n", yylineno );
-                return;
-            }
-            outputRed = tempNode1->next->next->arg_val;
-        }
-    }
-
-    if(outputRed != ""){
-        FILE *outputfile = fopen(outputRED, "a+");
-        dup2(fileno(outputfile), STDOUT_FILENO);
-        fclose(outputfile);
-    }
-
-    */
-    
-}
-
-
 arg_node* splitToTokens(char* string, char* delimiter)
 {
     char* token;
@@ -469,3 +380,143 @@ int whitespaceOnly(char* string)
     }
     return 1;
 }
+
+
+commandBlock(arg_node* args)
+{
+
+    /*Variable decs */
+    int outRedirects = 0;
+    int pipesFound = 0;
+    char* outputRed = "";
+    char* inputRed;
+
+    arg_node* tempNode = args;
+    arg_node* currentNode = args;
+    while(args->next!=NULL){
+    args = args->next;
+    args = aliasArgReplace(args);
+    }
+    args = tempNode; //Why don't we reuse this
+    args = aliasArgReplace(args);
+
+    currentNode = args;
+    while (currentNode != NULL)
+    {
+        printf("%s\n",currentNode->arg_val);
+        currentNode = currentNode->next;
+    }
+
+    if (args == NULL) return;
+    const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
+    int i;
+    for(i = 0; i< 8; i++){
+        if (strcmp(args->arg_val, Commands[i]) == 0){
+            switch (i){
+                case 0:
+                    bye();
+                case 1:
+                    ls(); //Pass in argument if being written to file
+                    return;
+                case 2:
+                    cd(args);
+                    return;
+                case 3:
+                    alias(args);
+                    return;
+                case 4:
+                    unalias(args);
+                    return;
+                case 5:
+                    setEnv(args);
+                    return;
+                case 6:
+                    printEnv(); //Pass in argument if being written to file
+                    return;
+                case 7:
+                    unsetEnv(args);
+                    return;
+
+                }
+            }
+    }
+
+    /*IO redirection by Andrew B */
+    /* 
+    1. Need to throw error if output for file makes no sense or if no file given
+    2. Handle case for "< file"
+    */    
+
+
+    /*NOTES TO DELETE 
+        tempNode1 -> current
+        tempNode2 -> h
+        tempNext -> nextNode
+    */
+
+
+    arg_node* tempNode1 = args; //Move these to the top?
+    arg_node* tempNode2 = args;
+    
+    printf("You made it this far 1\n");
+
+    while(tempNode1 != NULL){ //Run through args to find some pipes
+        if(strcmp(tempNode1->arg_val, "|") == 0){ //Did we find a "|"
+            pipesFound = pipesFound + 1; //pipesFound++; C being weird
+        }
+        tempNode1 = tempNode1->next; //Move to the next node
+    }
+
+
+    arg_node** commandTable = malloc(sizeof(arg_node*)*(pipesFound + 1)); //Pipes sepearate commands in table 
+    /* Each pipe is a complete command, thus pipe I/O works */
+
+    tempNode1 = args; //Reset 
+    i = 0; //i is unchanged
+
+    /*
+        [ls] -> ["|"] -> [wc] -> [-l]
+
+    */
+
+    printf("Found %d pipe(s) \n", pipesFound);
+
+    /*Need to predict piping */
+    while(tempNode1->next != NULL){ //current != NULL //Possibly merge this with previous while loop?
+        printf("Looped\n");
+        arg_node* tempNext = tempNode1->next; //AndrewH won't this mess it up?
+
+        if(strcmp(tempNode1->next->arg_val, "|") == 0){ //Next value is string
+            commandTable[i] = tempNode2;
+            tempNode2 = tempNode1->next->next; //Grab set of commands before pipes
+            tempNode1->next = NULL;
+            i++;
+        }
+        tempNode1 = tempNext;
+        printf("Loop and tempNode1->next = %s\n", tempNode1->next);
+    } //ONly seg faults if | has no end
+
+    printf("Done\n");
+
+    //BE CAREFUL Got a seg fault because i was trying to find arg_value of a null
+
+     if(tempNode2 == NULL){ //Handle the DUMB IDIOT USER putting a pipe at the end of the line
+        printf("error at line %d: entered pipe as last command\nYOU'RE SO DUMB\n", yylineno);
+        free(commandTable); //This is what self commenting code looks like
+        return;
+    } 
+
+    commandTable[i] = tempNode2; //Save last command to the table
+
+    /*TO DO handle wildcarding */
+    /*TO DO handle path stuff */
+
+
+
+
+    return;
+
+
+}
+
+

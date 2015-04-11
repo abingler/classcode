@@ -10,7 +10,7 @@
 
 %%
 
-[a-zA-Z0-9\/.-]+ 		{ //One or more copies of a-z or A-Z or 0-9 or \ or / or . or - (This is a character class, so only ^ or - between chars has any effect)
+[a-zA-Z0-9\/.|-]+ 		{ //One or more copies of a-z or A-Z or 0-9 or \ or / or . or - (This is a character class, so only ^ or - between chars has any effect)
 							yylval.string=strdup(yytext); return WORD; 
 						}
 
