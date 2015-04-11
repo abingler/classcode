@@ -10,18 +10,22 @@
 
 %%
 
-[a-zA-Z0-9\/.-]+ yylval.string=strdup(yytext); return WORD;
+[a-zA-Z0-9\/.-]+ 		{	yylval.string = strdup(yytext);
+							yylval.string = insertEnv(yylval.string);
+							replaceEscape(yylval.string);
+							return WORD;
+						}
 
 [^ \t\r\n\v\f;]*        {
-							char* text=strdup(yytext);
-                        	text=insertEnv(text);
-                        	replaceEscape(text);
-                        	if (hasWhitespace(text))
+							char* words=strdup(yytext);
+                        	words=insertEnv(words);
+                        	replaceEscape(words);
+                        	if (hasWhitespace(words))
                         	{
-                        		yylval.arg_n = splitToTokens(text, " \t");
+                        		yylval.arg_n = splitToTokens(words, " \t");
                         	    return ARGS;
                         	}
-                     	}
+                        }
 
 ;         			return NEWLINE;
 \n         			return NEWLINE;       

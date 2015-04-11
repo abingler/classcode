@@ -365,6 +365,14 @@ aliasArgReplace(arg_node* args){
 
 /*string handling functions*/
 
+char* concat(char* string1, char* string2)
+{
+    char* result = malloc(strlen(string1)+strlen(string2)+1);
+    strcpy(result, string1);
+    strcat(result, string2);
+    return result;
+}
+
 char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
 {
     static char buffer[4096];
