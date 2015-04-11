@@ -43,90 +43,13 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
 %%
 
 commands:
-		| commands command 	{printf("%s> ",getenv("PWD"));}
-		| commands arg_list NEWLINE{commandBlock($2);printf("%s> ",getenv("PWD"));}
+        | commands command  {printf("%s> ",getenv("PWD"));}
+        | commands arg_list NEWLINE{commandBlock($2);printf("%s> ",getenv("PWD"));}
 
 command:/*commands moved to commandBlock in main.c*/
-		| NEWLINE /* ignore new line*/
-		;
+        | NEWLINE /* ignore new line*/
+        ;
 
-
-/*bye:
-	BYE
-		{
-			printf("Exiting the shell now...\n");
-			exit(0);
-		};
-*/
-
-//cd: 
-//	CD	
-//		{
-//			chdir(getenv("HOME"));  /*move to home*/
-//			setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
-//		}
-//	| CD WORD
-//		{
-//			$2 = insertEnv($2); /*extract env from word*/
-//			chdir($2);			/*change dir*/
-//			char pwd[4096];
-//			getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
-//			setenv("PWD", pwd, 1); /*update PWD*/
-//		};
-/*		
-setEnv:
-	SETENV WORD WORD
-		{
-			char* envName = insertEnv($<string>2);/*extract word1
-			char* envVal = insertEnv($<string>3);/*extract word2
-			int result = setenv(envName, envVal, 1);
-			if(result == -1)
-				printf("Failed to set variable %s to %s.\n", envName, envVal);
-		};
-printEnv:
-	PRINTENV
-		{		
-			extern char **environ;	
-			int i=0;
-			while(environ[i])
-				printf("%s\n", environ[i++]);
-			char* path = getenv("PATH");
-			printf("%s> ",path);
-		}
-
-unsetEnv:
-	UNSETENV WORD 
-		{
-			char* name = $<string>2;
-			if(getenv(name))
-				unsetenv(name);\
-			else
-				printf("Variable %s does not exist.\n", name);
-		}
-*/
-/*ls:
-	LS
-		{
-			ls();
-		}
-
-alias:
-	ALIAS
-		{
-			printAliasList(aliasHead);/*prints list
-		}
-	| ALIAS WORD WORD
-		{ 
-			push(&aliasHead, $2, $3); /*add new Alias
-
-		}
-			
-unalias:
-	UNALIAS WORD
-		{
-			removeByAlias(&aliasHead, $2);
-		}
-*/
 arg_list:
     WORD arg_list { $$ = malloc(sizeof(arg_node));
                     $$->next = $2;
@@ -140,8 +63,8 @@ arg_list:
                  }
     |
     ARGS          { $$ = $1; 
-    				//printf("%s\n",$1 );
-    				}
+                    //printf("%s\n",$1 );
+                    }
 
     |
     WORD          { $$ = malloc(sizeof(arg_node));
@@ -151,4 +74,82 @@ arg_list:
                 }
     ;
 %%
+
+
+/*bye:
+    BYE
+        {
+            printf("Exiting the shell now...\n");
+            exit(0);
+        };
+*/
+
+//cd: 
+//  CD  
+//      {
+//          chdir(getenv("HOME"));  /*move to home*/
+//          setenv("PWD", getenv("HOME"), 1);  /*update PWD with home*/
+//      }
+//  | CD WORD
+//      {
+//          $2 = insertEnv($2); /*extract env from word*/
+//          chdir($2);          /*change dir*/
+//          char pwd[4096];
+//          getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
+//          setenv("PWD", pwd, 1); /*update PWD*/
+//      };
+/*      
+setEnv:
+    SETENV WORD WORD
+        {
+            char* envName = insertEnv($<string>2);/*extract word1
+            char* envVal = insertEnv($<string>3);/*extract word2
+            int result = setenv(envName, envVal, 1);
+            if(result == -1)
+                printf("Failed to set variable %s to %s.\n", envName, envVal);
+        };
+printEnv:
+    PRINTENV
+        {       
+            extern char **environ;  
+            int i=0;
+            while(environ[i])
+                printf("%s\n", environ[i++]);
+            char* path = getenv("PATH");
+            printf("%s> ",path);
+        }
+
+unsetEnv:
+    UNSETENV WORD 
+        {
+            char* name = $<string>2;
+            if(getenv(name))
+                unsetenv(name);\
+            else
+                printf("Variable %s does not exist.\n", name);
+        }
+*/
+/*ls:
+    LS
+        {
+            ls();
+        }
+
+alias:
+    ALIAS
+        {
+            printAliasList(aliasHead);/*prints list
+        }
+    | ALIAS WORD WORD
+        { 
+            push(&aliasHead, $2, $3); /*add new Alias
+
+        }
+            
+unalias:
+    UNALIAS WORD
+        {
+            removeByAlias(&aliasHead, $2);
+        }
+*/
 

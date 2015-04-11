@@ -40,22 +40,16 @@
       know about them.  */
    enum yytokentype {
      BYE = 258,
-     PRINTENV = 259,
-     SETENV = 260,
-     UNSETENV = 261,
-     NEWLINE = 262,
-     WORD = 263,
-     ARGS = 264
+     NEWLINE = 259,
+     WORD = 260,
+     ARGS = 261
    };
 #endif
 /* Tokens.  */
 #define BYE 258
-#define PRINTENV 259
-#define SETENV 260
-#define UNSETENV 261
-#define NEWLINE 262
-#define WORD 263
-#define ARGS 264
+#define NEWLINE 259
+#define WORD 260
+#define ARGS 261
 
 
 
@@ -75,7 +69,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 79 "y.tab.h"
+#line 73 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

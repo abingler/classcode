@@ -9,11 +9,12 @@
 #define copystring(a,b) strcpy((a=(char *)malloc(strlen(b)+1)),b)
 
 extern int yylineno;
+extern char** environ;
 
 typedef struct node { /*all nodes in alias linked list need a name value and pointer to the next node*/
-	char* alias;
-	char* val;
-	struct node* next;
+    char* alias;
+    char* val;
+    struct node* next;
 } node_t;
 
 node_t* aliasHead; /*points to the head of the linked list*/
@@ -21,26 +22,28 @@ node_t* aliasHead; /*points to the head of the linked list*/
 
 int main()
 {         
-	aliasHead = NULL;
-	printf("hello I am computer\n");
-	printf("I make the shell\n");
-	printf("wat do\n");
+    aliasHead = NULL;
+    printf("hello I am computer\n");
+    printf("I make the shell\n");
+    printf("wat do\n");
 
-	while(1){	
-		printf("%s> ",PWD);
-		yyparse();
-	}
-	return 0;
+    while(1){   
+        printf("%s> ",PWD);
+        yyparse();
+    }
+    return 0;
 } 
 
 void ls(){
     int process;
+    char *const argv[2] = {"/bin/ls", NULL};
     process = fork();
     if(process > 0)     /* parent */
         wait((int*)0); //Casting zero to an int pointer?
     else if(process == 0)   /* child */
     {
-        execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search currentNode direct*/
+        execve( "/bin/ls", argv, environ ); //Execute commands
+        //execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search currentNode direct*/
         exit(1);
     }
     else if(process == -1)      /* can't create a new process */
@@ -229,66 +232,6 @@ void unsetEnv(arg_node* args){
                 printf("Variable %s does not exist.\n", name);
 }
 
-
-
-commandBlock(arg_node* args)
-{
-    arg_node* tempNode = args;
-    arg_node* currentNode = args;
-    while(args->next!=NULL){
-    args = args->next;
-    args = aliasArgReplace(args);
-    }
-    args = tempNode;
-    args = aliasArgReplace(args);
-
-    currentNode = args;
-    while (currentNode != NULL)
-    {
-        printf("%s\n",currentNode->arg_val);
-        currentNode = currentNode->next;
-    }
-
-    if (args == NULL) return;
-    const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
-    int i;
-    for(i = 0; i< 8; i++){
-        if (strcmp(args->arg_val, Commands[i]) == 0){
-            switch (i){
-                case 0:
-                    bye();
-                case 1:
-                    ls();
-                    return;
-                case 2:
-                    cd(args);
-                    return;
-                case 3:
-                    alias(args);
-                    return;
-                case 4:
-                    unalias(args);
-                    return;
-                case 5:
-                    setEnv(args);
-                    return;
-                case 6:
-                    printEnv();
-                    return;
-                case 7:
-                    unsetEnv(args);
-                    return;
-
-                }
-            }
-    }
-    
-
-    
-    
-}
-
-
 arg_node* splitToTokens(char* string, char* delimiter)
 {
     char* token;
@@ -319,37 +262,37 @@ arg_node* splitToTokens(char* string, char* delimiter)
 
 
 aliasArgReplace(arg_node* args){
-	int nestedAliasLoop = 0;
-	int aliasLoop = 0; //guard against infinite expansion
+    int nestedAliasLoop = 0;
+    int aliasLoop = 0; //guard against infinite expansion
     arg_node* original = args; //first
-	while(nestedAliasLoop<100){
+    while(nestedAliasLoop<100){
         aliasLoop =0;
         while(args->arg_val != aliasReplace(args->arg_val) && aliasLoop < 100) //where an alias exists
-        	{
-        		args->arg_val = aliasReplace(args->arg_val);
+            {
+                args->arg_val = aliasReplace(args->arg_val);
                 /*printf("debug1a args->arg_val = %s\n",args->arg_val );
                 if(args->next != NULL){
                     args = args->next;
                     printf("debug1b args->arg_val = %s\n",args->arg_val );
                 }*/
-       		 	aliasLoop++;
-        	}
-        	if (aliasLoop == 100 || aliasLoop == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
-        	if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)){ //if spaces exist in alias
-        		args = splitToTokens(args->arg_val, " \t"); //break it into tokens about the spaces
-        	    arg_node* currentNode = args; //define the currentNode nose
-        	    while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
-        	    currentNode->next = original->next;// reset currentNode node -> next for next loop
-        	    free(original);
-        	}
-        	else break;//no nested alias        	
+                aliasLoop++;
+            }
+            if (aliasLoop == 100 || aliasLoop == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
+            if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)){ //if spaces exist in alias
+                args = splitToTokens(args->arg_val, " \t"); //break it into tokens about the spaces
+                arg_node* currentNode = args; //define the currentNode nose
+                while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
+                currentNode->next = original->next;// reset currentNode node -> next for next loop
+                free(original);
+            }
+            else break;//no nested alias            
             nestedAliasLoop++;
     }
-	if (nestedAliasLoop != 100 && aliasLoop != 100) { 
+    if (nestedAliasLoop != 100 && aliasLoop != 100) { 
         return args;
     } //function succsefull
-	else
-	{
+    else
+    {
         fprintf(stderr, "on line %d: infinite alias error occured\n", yylineno);
         arg_node* prev = NULL;//empty args list and free nodes
         while (args != NULL){
@@ -445,3 +388,143 @@ int whitespaceOnly(char* string)
     }
     return 1;
 }
+
+
+commandBlock(arg_node* args)
+{
+
+    /*Variable decs */
+    int outRedirects = 0;
+    int pipesFound = 0;
+    char* outputRed = "";
+    char* inputRed;
+
+    arg_node* tempNode = args;
+    arg_node* currentNode = args;
+    while(args->next!=NULL){
+    args = args->next;
+    args = aliasArgReplace(args);
+    }
+    args = tempNode; //Why don't we reuse this
+    args = aliasArgReplace(args);
+
+    currentNode = args;
+    while (currentNode != NULL)
+    {
+        printf("%s\n",currentNode->arg_val);
+        currentNode = currentNode->next;
+    }
+
+    if (args == NULL) return;
+    const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
+    int i;
+    for(i = 0; i< 8; i++){
+        if (strcmp(args->arg_val, Commands[i]) == 0){
+            switch (i){
+                case 0:
+                    bye();
+                case 1:
+                    ls(); //Pass in argument if being written to file
+                    return;
+                case 2:
+                    cd(args);
+                    return;
+                case 3:
+                    alias(args);
+                    return;
+                case 4:
+                    unalias(args);
+                    return;
+                case 5:
+                    setEnv(args);
+                    return;
+                case 6:
+                    printEnv(); //Pass in argument if being written to file
+                    return;
+                case 7:
+                    unsetEnv(args);
+                    return;
+
+                }
+            }
+    }
+
+    /*IO redirection by Andrew B */
+    /* 
+    1. Need to throw error if output for file makes no sense or if no file given
+    2. Handle case for "< file"
+    */    
+
+
+    /*NOTES TO DELETE 
+        tempNode1 -> current
+        tempNode2 -> h
+        tempNext -> nextNode
+    */
+
+
+    arg_node* tempNode1 = args; //Move these to the top?
+    arg_node* tempNode2 = args;
+    
+    printf("You made it this far 1\n");
+
+    while(tempNode1 != NULL){ //Run through args to find some pipes
+        if(strcmp(tempNode1->arg_val, "|") == 0){ //Did we find a "|"
+            pipesFound = pipesFound + 1; //pipesFound++; C being weird
+        }
+        tempNode1 = tempNode1->next; //Move to the next node
+    }
+
+
+    arg_node** commandTable = malloc(sizeof(arg_node*)*(pipesFound + 1)); //Pipes sepearate commands in table 
+    /* Each pipe is a complete command, thus pipe I/O works */
+
+    tempNode1 = args; //Reset 
+    i = 0; //i is unchanged
+
+    /*
+        [ls] -> ["|"] -> [wc] -> [-l]
+
+    */
+
+    printf("Found %d pipe(s) \n", pipesFound);
+
+    /*Need to predict piping */
+    while(tempNode1->next != NULL){ //current != NULL //Possibly merge this with previous while loop?
+        printf("Looped\n");
+        arg_node* tempNext = tempNode1->next; //AndrewH won't this mess it up?
+
+        if(strcmp(tempNode1->next->arg_val, "|") == 0){ //Next value is string
+            commandTable[i] = tempNode2;
+            tempNode2 = tempNode1->next->next; //Grab set of commands before pipes
+            tempNode1->next = NULL;
+            i++;
+        }
+        tempNode1 = tempNext;
+        printf("Loop and tempNode1->next = %s\n", tempNode1->next);
+    } //ONly seg faults if | has no end
+
+    printf("Done\n");
+
+    //BE CAREFUL Got a seg fault because i was trying to find arg_value of a null
+
+     if(tempNode2 == NULL){ //Handle the DUMB IDIOT USER putting a pipe at the end of the line
+        printf("error at line %d: entered pipe as last command\nYOU'RE SO DUMB\n", yylineno);
+        free(commandTable); //This is what self commenting code looks like
+        return;
+    } 
+
+    commandTable[i] = tempNode2; //Save last command to the table
+
+    /*TO DO handle wildcarding */
+    /*TO DO handle path stuff */
+
+
+
+
+    return;
+
+
+}
+
+
