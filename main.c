@@ -308,12 +308,13 @@ argNode* aliasArgReplace(argNode* args){
 
 /*string handling functions*/
 
-char* concat(char* string1, char* string2)
+char* concatenate(char* dest, char* src)
 {
-    char* result = malloc(strlen(string1)+strlen(string2)+1);
-    strcpy(result, string1);
-    strcat(result, string2);
-    return result;
+    char* concat = malloc(strlen(dest)+strlen(src)+1);
+    strcpy(concat, dest);
+    strcat(concat, src); //Append src to dest
+
+    return concat;
 }
 
 char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
@@ -560,26 +561,28 @@ void commandBlock(argNode* args){
         if ( !has_character(commandTable[val]->argVal, '/') ) //If we do not have the '/' character ?No path to bin?
         {
             char* path = getenv("PATH"); //Grab that path
+            char* callCmd;
+            int access = 0;
 
-            argNode* paths = stringTok(path, ":"); //Paths is returned with a Linked List of tokenized values
+            argNode* tokedPath = stringTok(path, ":"); //Tokenize Paths
 
-            argNode* list_path = paths; //Copy over paths
-            char* fname;
-            int found = 0;
-            while (list_path != NULL && found == 0){
-                char* temp = concat(list_path->argVal, "/");
-                fname = concat(temp, commandTable[val]->argVal);
-                free(temp);
-                if( access( fname, F_OK ) != -1 ){
-                    found = 1;
-                    commandTable[val]->argVal = fname;
+            while (tokedPath != NULL && access == 0){ //
+                char* temp = concatenate(tokedPath->argVal, "/"); //Append / 
+                callCmd = concatenate(temp, commandTable[val]->argVal); //Append command (We want /bin/ls for example)
+
+                 if(access(callCmd, F_OK ) != -1 ){ //Can we access this area (Will not always work)
+                    access = 1;
+                    commandTable[val]->argVal = callCmd;
                 }
-                else{
-                    free(fname);
-                }
-                list_path = list_path->next;
+                else free(callCmd);
+
+
+                //commandTable[val]->argVal = callCmd;
+                tokedPath = tokedPath->next;
+
+                free(temp); //Overflow problems
             }
-            if (found == 0){
+            if (access == 0){
                 fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }
@@ -648,7 +651,7 @@ void commandBlock(argNode* args){
                     for(k = 0; k < strlen(curr_arg)-2; k++) {
                         errf[k] = curr_arg[k+2];
                     }
-                    err_file = concat("", errf);
+                    err_file = concatenate("", errf);
                 } else if (curr_arg[0]=='&') {
                     //perform in background
                     wait_for_comp = 0;
