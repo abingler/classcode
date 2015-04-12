@@ -10,7 +10,7 @@
 
 %%
 
-[a-zA-Z0-9\/.|-]+ 		{	yylval.string = strdup(yytext);
+[a-zA-Z0-9\/\$\{\}\.|-]+ 		{	yylval.string = strdup(yytext);
 							yylval.string = insertEnv(yylval.string);
 							replaceEscape(yylval.string);
 							return WORD;
@@ -22,10 +22,12 @@
                         	replaceEscape(words);
                         	if (hasWhitespace(words))
                         	{
-                        		yylval.arg_n = splitToTokens(words, " \t");
+                        		yylval.argN = splitToTokens(words, " \t");
                         	    return ARGS;
                         	}
+                        	
                         }
+
 
 ;         				return NEWLINE;
 \n         				return NEWLINE;       
