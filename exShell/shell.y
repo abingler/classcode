@@ -476,7 +476,6 @@ void run_command(arg_node* args)
     int i;
     char* output_f;
     int childBI_PID;
-    printf("MORE TESTING");
     for (i = 0; i < 7; i++)
     {
         if (strcmp(args->arg_str, built_in[i]) == 0)
@@ -519,13 +518,11 @@ void run_command(arg_node* args)
             }
         }
     }
-    printf("TESTING");
     arg_node* current = args;
     int num_pipes = 0;
     while (current != NULL)
     {
         if (strcmp(current->arg_str, "|") == 0) num_pipes++;
-        printf("Value is %s\n", current->arg_str); ///HUURRRRRRRRRRRRRRRRRRRRRRR
         current = current->next;
     }
     arg_node** arg_table = malloc(sizeof(arg_node*)*(num_pipes+1));
@@ -650,9 +647,7 @@ void run_command(arg_node* args)
             arg_node* current = arg_table[index];
             while(current != NULL) {
                 curr_arg = current->arg_str;
-                if (i<arg_size-1) {
-                    printf("Current is: %s\n", curr_arg); //END HERRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-                argv[i] = curr_arg;} //get args before >,<,|,etc
+                if (i<arg_size-1) {argv[i] = curr_arg;} //get args before >,<,|,etc
                 current = current->next;
                 i++;
                 if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0) { //new file for output
@@ -720,10 +715,6 @@ void run_command(arg_node* args)
                     dup2(fileno(fp_out), STDOUT_FILENO);
                     fclose(fp_out);
                 }
-                int g = 0;
-                for(g = 0; g < arg_size+1; g++){
-                    printf("Value at argv[%d] is: %s", g, argv[g]);
-                }
                 execve( arg_table[index]->arg_str, argv, environ );
                 perror("execve");
                 _exit(EXIT_FAILURE);
@@ -749,10 +740,6 @@ void run_command(arg_node* args)
                 {
                     close(pipe_array[n][0]);
                     close(pipe_array[n][1]);
-                }
-                int g = 0;
-                for(g = 0; g < arg_size+1; g++){
-                    printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
                 execve( arg_table[index]->arg_str, argv, environ );
                 perror("execve");
@@ -780,10 +767,6 @@ void run_command(arg_node* args)
                 {
                     close(pipe_array[n][0]);
                     close(pipe_array[n][1]);
-                }
-                int g = 0;
-                for(g = 0; g < arg_size+1; g++){
-                    printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
                 execve( arg_table[index]->arg_str, argv, environ );
                 perror("execve");
@@ -833,7 +816,7 @@ int main(int argc, char* argv[])
 %%
 commands: /* empty */
         | commands error TERMINATOR { yyerrok; }
-        | commands arg_list TERMINATOR { printf("Test1"); run_command($2); }
+        | commands arg_list TERMINATOR { run_command($2); }
         ;
 arg_list:
     WORD arg_list { $$ = malloc(sizeof(arg_node));

@@ -14,6 +14,7 @@ shell.l
 shell.y
 test code
 test.txt
+text.txt
 Tutorials.txt
 y.tab.c
 y.tab.h

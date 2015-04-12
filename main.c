@@ -613,60 +613,63 @@ void commandBlock(argNode* args){
         if ( val == pipesFound ) {
             int arg_size = get_args_list_size(commandTable[val])+1;
             char *argv[ arg_size+1 ];
-            char* input_file = "";
-            char* output_file = "";
+            char* inputRed = "";
+            char* outputRed = "";
             char* err_file = "";
             int errisstdout = 0;
             char* curr_arg;
             int i = 0;
+
+
             argNode* list = commandTable[val];
             while(list != NULL) {
                 curr_arg = list->argVal;
-                if (i<arg_size-1) {
-                argv[i] = curr_arg;} //get args before >,<,|,etc
+                if (i<arg_size-1){ //Grab arguments first
+                argv[i] = curr_arg;
+                } 
                 list = list->next;
                 i++;
-                if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0) { //new file for output
-                    if (list == NULL)
-                    {
+                if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0){ 
+                    if (list == NULL){
                         fprintf(stderr, "error on line %d: no output file specified after >\n", yylineno );
                         return;
                     }
-                    output_file = list->argVal;
+                    outputRed = list->argVal;
                     list = list->next;
                     i++;
-                } else if (strcmp(curr_arg, "<") == 0) {//new file for input
-                    if (list == NULL)
-                    {
+                } 
+                else if (strcmp(curr_arg, "<") == 0) {
+                    if(list == NULL){
                         fprintf(stderr, "error on line %d: no input file specified after <\n", yylineno );
                         return;
                     }
-                    input_file = list->argVal;
+                    printf("Input file is %s\n", list->argVal);
+                    inputRed = list->argVal;
                     list = list->next;
                     i++;
-                } else if (strcmp(curr_arg, "2>$1") == 0) {
-                    //set std err to std out
+                } 
+                else if (strcmp(curr_arg, "2>$1") == 0) {
                     errisstdout = 1;
-                } else if (curr_arg[0]=='2' && curr_arg[1]=='>') {
-                    //set std err to another file
+                } 
+                else if (curr_arg[0]=='2' && curr_arg[1]=='>') {
                     int k = 0;
                     char errf[strlen(curr_arg) - 2];
-                    for(k = 0; k < strlen(curr_arg)-2; k++) {
+                    for(k = 0; k < strlen(curr_arg)-2; k++){
                         errf[k] = curr_arg[k+2];
                     }
                     err_file = concatenate("", errf);
-                } else if (curr_arg[0]=='&') {
-                    //perform in background
+                } 
+                else if (curr_arg[0]=='&') {
                     wait_for_comp = 0;
                 }
             }
-            argv[arg_size-1] = NULL; //null terminated bruh
+            argv[arg_size-1] = NULL;
 
             int childPID = fork();
             if ( childPID == 0 ) {
-                //child process
-                if (input_file != "") {
-                    FILE *fp_in = fopen(input_file, "a+");
+                if (inputRed != "") {
+                    printf("You have changed file input\n");
+                    FILE *fp_in = fopen(inputRed, "a+");
                     dup2(fileno(fp_in), STDIN_FILENO);
                     fclose(fp_in);
                 }
@@ -686,8 +689,8 @@ void commandBlock(argNode* args){
                 } else if (errisstdout == 1) {
                     dup2(fileno(stdout), fileno(stderr));
                 }
-                if (output_file != "") {
-                    FILE *fp_out = fopen(output_file, "a+");
+                if (outputRed != "") {
+                    FILE *fp_out = fopen(outputRed, "a+");
                     dup2(fileno(fp_out), STDOUT_FILENO);
                     fclose(fp_out);
                 }
