@@ -64,7 +64,7 @@ typedef union YYSTYPE
         int number;
         char* string;
         void* linkedlist;
-        arg_node* arg_n;
+        argNode* argN;
 
 
 

@@ -146,7 +146,7 @@ typedef union YYSTYPE
         int number;
         char* string;
         void* linkedlist;
-        arg_node* arg_n;
+        argNode* argN;
 
 
 
@@ -459,7 +459,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "BYE", "NEWLINE", "WORD", "ARGS",
-  "$accept", "commands", "command", "arg_list", 0
+  "$accept", "commands", "command", "argList", 0
 };
 #endif
 
@@ -1358,26 +1358,26 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 47 "shell.y"
-    {commandBlock((yyvsp[(2) - (3)].arg_n));printf("%s> ",getenv("PWD"));}
+    {commandBlock((yyvsp[(2) - (3)].argN));printf("%s> ",getenv("PWD"));}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
 #line 54 "shell.y"
-    { (yyval.arg_n) = malloc(sizeof(arg_node));
-                    (yyval.arg_n)->next = (yyvsp[(2) - (2)].arg_n);
-                    (yyval.arg_n)->arg_val = (yyvsp[(1) - (2)].string);}
+    { (yyval.argN) = malloc(sizeof(argNode));
+                    (yyval.argN)->next = (yyvsp[(2) - (2)].argN);
+                    (yyval.argN)->argVal = (yyvsp[(1) - (2)].string);}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
 #line 58 "shell.y"
-    {  (yyval.arg_n) = (yyvsp[(1) - (2)].arg_n);
-                     arg_node* current = (yyvsp[(1) - (2)].arg_n);
+    {  (yyval.argN) = (yyvsp[(1) - (2)].argN);
+                     argNode* current = (yyvsp[(1) - (2)].argN);
                      while (current->next != NULL) current = current->next;
-                     current->next = (yyvsp[(2) - (2)].arg_n);
+                     current->next = (yyvsp[(2) - (2)].argN);
                      //printf("%s\n",$1 );
                  }
     break;
@@ -1386,7 +1386,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 65 "shell.y"
-    { (yyval.arg_n) = (yyvsp[(1) - (1)].arg_n); 
+    { (yyval.argN) = (yyvsp[(1) - (1)].argN); 
                     //printf("%s\n",$1 );
                     }
     break;
@@ -1395,9 +1395,9 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 70 "shell.y"
-    { (yyval.arg_n) = malloc(sizeof(arg_node));
-                    (yyval.arg_n)->next = NULL;
-                    (yyval.arg_n)->arg_val = (yyvsp[(1) - (1)].string);
+    { (yyval.argN) = malloc(sizeof(argNode));
+                    (yyval.argN)->next = NULL;
+                    (yyval.argN)->argVal = (yyvsp[(1) - (1)].string);
                     //printf("%s\n",$1 ); 
                 }
     break;
