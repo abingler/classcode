@@ -10,7 +10,7 @@
 
 %%
 
-[a-zA-Z0-9\/.|-]+ 		{	yylval.string = strdup(yytext);
+[a-zA-Z0-9\/.|><&*?-]+ 		{	yylval.string = strdup(yytext);
 							yylval.string = insertEnv(yylval.string);
 							replaceEscape(yylval.string);
 							return WORD;

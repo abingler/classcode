@@ -34,24 +34,24 @@ int main()
     return 0;
 } 
 
-void ls(){
+/* void ls(){
     int process;
     char *const argv[2] = {"/bin/ls", NULL};
     process = fork();
-    if(process > 0)     /* parent */
+    if(process > 0)     
         wait((int*)0); //Casting zero to an int pointer?
-    else if(process == 0)   /* child */
+    else if(process == 0)   
     {
         execve( "/bin/ls", argv, environ ); //Execute commands
-        //execlp("ls", "ls", "--color=auto",(char *) NULL ); /*search currentNode direct*/
+        //execlp("ls", "ls", "--color=auto",(char *) NULL ); 
         exit(1);
     }
-    else if(process == -1)      /* can't create a new process */
+    else if(process == -1)      
     {
         fprintf(stderr, "Can't fork!\n");
         exit(2);
     }
-}
+} */
 
 char * insertEnv(char* input);
 
@@ -390,14 +390,72 @@ int whitespaceOnly(char* string)
 }
 
 
+
+/*New Functions ****************************************************************************/
+int has_character(char* string, char ch)
+{
+    int i;
+    for (i = 0; i < strlen(string); i++)
+    {
+        if (string[i] == ch) return 1;
+    }
+    return 0;
+}
+
+arg_node* split_to_tokens(char* string, char* delimiter)
+{
+    char* token;
+    char* tmp = strdup(string);
+    token = strtok(tmp, delimiter);
+    arg_node* head = malloc(sizeof(arg_node));
+    head->next = NULL;
+    if (token != NULL)
+    {
+        head->arg_val = token;
+    }
+    else
+    {
+        head->arg_val = tmp;
+    }
+    arg_node* current = head;
+    token = strtok(NULL, delimiter); 
+    while (token != NULL)
+    {
+          current->next = malloc(sizeof(arg_node));
+          current = current->next;
+          current->arg_val = token;
+          current->next = NULL;  
+          token = strtok(NULL, delimiter); 
+    }
+    return head;
+}
+
+int get_args_list_size(arg_node * head)
+{
+    arg_node * current = head;
+    int counter = 0;
+    while (current != NULL)
+    {
+        if (strcmp(current->arg_val, ">") != 0 &&
+            strcmp(current->arg_val, ">>") != 0 &&
+            strcmp(current->arg_val, "<") != 0 &&
+            strcmp(current->arg_val, "|") != 0 &&
+            (current->arg_val[0]!='2' && current->arg_val[1]!='>') &&
+            strcmp(current->arg_val, "&") != 0) {
+                counter++;
+                current = current->next; 
+        }
+        else break;
+    }
+    return counter;
+}
+
+
+/*END New Functions *************************************************************************/
+
 commandBlock(arg_node* args)
 {
 
-    /*Variable decs */
-    int outRedirects = 0;
-    int pipesFound = 0;
-    char* outputRed = "";
-    char* inputRed;
 
     arg_node* tempNode = args;
     arg_node* currentNode = args;
@@ -423,9 +481,9 @@ commandBlock(arg_node* args)
             switch (i){
                 case 0:
                     bye();
-                case 1:
-                    ls(); //Pass in argument if being written to file
-                    return;
+               // case 1:
+               //     ls(); //Pass in argument if being written to file
+               //     return;
                 case 2:
                     cd(args);
                     return;
@@ -449,80 +507,295 @@ commandBlock(arg_node* args)
             }
     }
 
-    /*IO redirection by Andrew B */
-    /* 
-    1. Need to throw error if output for file makes no sense or if no file given
-    2. Handle case for "< file"
-    */    
+    //Variables for CommandTable (Should be at top of commandBlock?)
+    arg_node* list = args;
+    int pipesFound = 0;
+    arg_node* temp = args;
+    int val = 0;
+    int test = 0;
 
 
-    /*NOTES TO DELETE 
-        tempNode1 -> current
-        tempNode2 -> h
-        tempNext -> nextNode
-    */
-
-
-    arg_node* tempNode1 = args; //Move these to the top?
-    arg_node* tempNode2 = args;
-    
-    printf("You made it this far 1\n");
-
-    while(tempNode1 != NULL){ //Run through args to find some pipes
-        if(strcmp(tempNode1->arg_val, "|") == 0){ //Did we find a "|"
-            pipesFound = pipesFound + 1; //pipesFound++; C being weird
+    while (list != NULL){ //Determine pipes found
+        if (strcmp(list->arg_val, "|") == 0){
+            pipesFound++;
         }
-        tempNode1 = tempNode1->next; //Move to the next node
+        list = list->next;
+    }
+ 
+    arg_node** commandTable = malloc( //Create Comand Table
+        sizeof(arg_node*)*(pipesFound+1)); //+1 for 0 pipes case
+
+
+    list = args;
+    while (list->next != NULL){ //Parse the command table out
+        arg_node* node2 = list->next; 
+        if (strcmp(list->next->arg_val, "|") == 0)
+        {
+            commandTable[val++] = temp; //Grabbing the head of each set of arguments
+            temp = list->next->next;
+            list->next = NULL; //Break the command apart from the rest
+        }
+        list = node2;
     }
 
-
-    arg_node** commandTable = malloc(sizeof(arg_node*)*(pipesFound + 1)); //Pipes sepearate commands in table 
-    /* Each pipe is a complete command, thus pipe I/O works */
-
-    tempNode1 = args; //Reset 
-    i = 0; //i is unchanged
-
-    /*
-        [ls] -> ["|"] -> [wc] -> [-l]
-
-    */
-
-    printf("Found %d pipe(s) \n", pipesFound);
-
-    /*Need to predict piping */
-    while(tempNode1->next != NULL){ //current != NULL //Possibly merge this with previous while loop?
-        printf("Looped\n");
-        arg_node* tempNext = tempNode1->next; //AndrewH won't this mess it up?
-
-        if(strcmp(tempNode1->next->arg_val, "|") == 0){ //Next value is string
-            commandTable[i] = tempNode2;
-            tempNode2 = tempNode1->next->next; //Grab set of commands before pipes
-            tempNode1->next = NULL;
-            i++;
-        }
-        tempNode1 = tempNext;
-        printf("Loop and tempNode1->next = %s\n", tempNode1->next);
-    } //ONly seg faults if | has no end
-
-    printf("Done\n");
-
-    //BE CAREFUL Got a seg fault because i was trying to find arg_value of a null
-
-     if(tempNode2 == NULL){ //Handle the DUMB IDIOT USER putting a pipe at the end of the line
-        printf("error at line %d: entered pipe as last command\nYOU'RE SO DUMB\n", yylineno);
-        free(commandTable); //This is what self commenting code looks like
+    //Handle the DUMB IDIOT USER 
+    if (temp == NULL)
+    {
+        fprintf(stderr, "error on line: %d, user placed pipe as last command\n", yylineno);
+        free(commandTable);
         return;
-    } 
-
-    commandTable[i] = tempNode2; //Save last command to the table
-
-    /*TO DO handle wildcarding */
-    /*TO DO handle path stuff */
+    }
+    commandTable[val] = temp;
 
 
+    /* //TESTING COMMANDTABLE
+    for(test = 0; test <= val; test++){
+        printf("Value in commandTable[%d] is: %s\n", test, commandTable[test]->arg_val);
+    } */
 
 
-    return;
+
+
+
+    for (val = 0; val < pipesFound + 1; val++) //For each group of commands
+    {
+        arg_node* list = commandTable[val];
+       /* while (list != NULL)
+        {
+            arg_node* original = list->next;
+            if (has_character(list->arg_val, '*') || has_character(list->arg_val, '?')) //Do we have any wildcard characters here //WILDCARDING
+            {
+               glob_t globbuf; //Getcha globbins
+               if (glob(list->arg_val, 0, NULL, &globbuf) == 0)
+               {
+
+                  size_t i;
+                  arg_node* iter = list;
+                  for (i = 0; i < globbuf.gl_pathc; i++)
+                  {
+                    iter->arg_val = strdup(globbuf.gl_pathv[i]);
+                    if (i != globbuf.gl_pathc - 1)
+                    {
+                      iter->next = malloc(sizeof(arg_node));
+                      iter = iter->next;
+                    }
+                  }
+                  iter->next = original;
+                  globfree(&globbuf);
+                }
+            }
+            list = original;
+        } */
+        if ( !has_character(commandTable[val]->arg_val, '/') ) //If we do not have the '/' character ?No path to bin?
+        {
+            char* path = getenv("PATH");
+            arg_node* paths = split_to_tokens(path, ":");
+            arg_node* list_path = paths;
+            char* fname;
+            int found = 0;
+            while (list_path != NULL && found == 0)
+            {
+                char* temp = concat(list_path->arg_val, "/");
+                fname = concat(temp, commandTable[val]->arg_val);
+                free(temp);
+                if( access( fname, F_OK ) != -1 )
+                {
+                    found = 1;
+                    commandTable[val]->arg_val = fname;
+                }
+                else
+                {
+                    free(fname);
+                }
+                list_path = list_path->next;
+            }
+            if (found == 0)
+            {
+                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->arg_val);
+                return;
+            }
+        }
+        else
+        {
+            if( access( commandTable[val]->arg_val, F_OK|X_OK ) != 0 )
+            {
+                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->arg_val);
+                return;
+            }
+        }
+    }
+    if (pipesFound > 200) pipesFound = 200;
+    int pipeBuffer[200][2];
+    int n;
+    for (n = 0; n < pipesFound; n++)
+    {
+        pipe(pipeBuffer[n]);
+
+    }
+    int wait_for_comp = 1;
+    for (val = 0; val < pipesFound + 1; val++)
+    {
+        if ( val == pipesFound ) {
+            int arg_size = get_args_list_size(commandTable[val])+1;
+            char *argv[ arg_size+1 ];
+            char* input_file = "";
+            char* output_file = "";
+            char* err_file = "";
+            int errisstdout = 0;
+            char* curr_arg;
+            int i = 0;
+            arg_node* list = commandTable[val];
+            while(list != NULL) {
+                curr_arg = list->arg_val;
+                if (i<arg_size-1) {
+                argv[i] = curr_arg;} //get args before >,<,|,etc
+                list = list->next;
+                i++;
+                if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0) { //new file for output
+                    if (list == NULL)
+                    {
+                        fprintf(stderr, "error at line %d: no output file specified after >\n", yylineno );
+                        return;
+                    }
+                    output_file = list->arg_val;
+                    list = list->next;
+                    i++;
+                } else if (strcmp(curr_arg, "<") == 0) {//new file for input
+                    if (list == NULL)
+                    {
+                        fprintf(stderr, "error at line %d: no input file specified after <\n", yylineno );
+                        return;
+                    }
+                    input_file = list->arg_val;
+                    list = list->next;
+                    i++;
+                } else if (strcmp(curr_arg, "2>$1") == 0) {
+                    //set std err to std out
+                    errisstdout = 1;
+                } else if (curr_arg[0]=='2' && curr_arg[1]=='>') {
+                    //set std err to another file
+                    int k = 0;
+                    char errf[strlen(curr_arg) - 2];
+                    for(k = 0; k < strlen(curr_arg)-2; k++) {
+                        errf[k] = curr_arg[k+2];
+                    }
+                    err_file = concat("", errf);
+                } else if (curr_arg[0]=='&') {
+                    //perform in background
+                    wait_for_comp = 0;
+                }
+            }
+            argv[arg_size-1] = NULL; //null terminated bruh
+
+            int childPID = fork();
+            if ( childPID == 0 ) {
+                //child process
+                if (input_file != "") {
+                    FILE *fp_in = fopen(input_file, "a+");
+                    dup2(fileno(fp_in), STDIN_FILENO);
+                    fclose(fp_in);
+                }
+                else if (pipesFound > 0)
+                {
+                    dup2(pipeBuffer[val-1][0], STDIN_FILENO);
+                    for (n = 0; n < pipesFound; n++)
+                    {
+                        close(pipeBuffer[n][0]);
+                        close(pipeBuffer[n][1]);
+                    }
+                }
+                if (err_file != "") {
+                    FILE *fp_err = fopen(err_file, "a+");
+                    dup2(fileno(fp_err), STDERR_FILENO);
+                    fclose(fp_err);
+                } else if (errisstdout == 1) {
+                    dup2(fileno(stdout), fileno(stderr));
+                }
+                if (output_file != "") {
+                    FILE *fp_out = fopen(output_file, "a+");
+                    dup2(fileno(fp_out), STDOUT_FILENO);
+                    fclose(fp_out);
+                }
+                int g = 0;
+                for(g = 0; g < arg_size+1; g++){
+                    printf("Value at argv[%d] is: %s", g, argv[g]);
+                }
+                execve( commandTable[val]->arg_val, argv, environ );
+                perror("execve");
+                _exit(EXIT_FAILURE);
+            }
+        }
+        else if ( val == 0 )
+        {
+            int arg_size = get_args_list_size(commandTable[val]);
+            char *argv[arg_size+1];
+            int i;
+            arg_node* list = commandTable[val];
+            for (i = 0; i < arg_size; i++)
+            {
+                argv[i] = list->arg_val;
+                list = list->next;
+            }
+            argv[arg_size] = NULL;
+            int childPID = fork();
+            if ( childPID == 0 )
+            {
+                dup2(pipeBuffer[val][1], STDOUT_FILENO);
+                for (n = 0; n < pipesFound; n++)
+                {
+                    close(pipeBuffer[n][0]);
+                    close(pipeBuffer[n][1]);
+                }
+                int g = 0;
+                for(g = 0; g < arg_size+1; g++){
+                    printf("Value at argv[%d] is: %s", g, argv[g]);
+                }
+                execve( commandTable[val]->arg_val, argv, environ );
+                perror("execve");
+                _exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            int arg_size = get_args_list_size(commandTable[val]);
+            char *argv[arg_size+1];
+            int i;
+            arg_node* list = commandTable[val];
+            for (i = 0; i < arg_size; i++)
+            {
+                argv[i] = list->arg_val;
+                list = list->next;
+            }
+            argv[arg_size] = NULL;
+            int childPID = fork();
+            if ( childPID == 0 )
+            {
+                dup2(pipeBuffer[val-1][0], STDIN_FILENO);
+                dup2(pipeBuffer[val][1], STDOUT_FILENO);
+                for (n = 0; n < pipesFound; n++)
+                {
+                    close(pipeBuffer[n][0]);
+                    close(pipeBuffer[n][1]);
+                }
+                int g = 0;
+                for(g = 0; g < arg_size+1; g++){
+                    printf("Value at argv[%d] is: %s", g, argv[g]);
+                }
+                execve( commandTable[val]->arg_val, argv, environ );
+                perror("execve");
+                _exit(EXIT_FAILURE);
+            }
+        }
+    }
+    for (n = 0; n < pipesFound; n++)
+    {
+        close(pipeBuffer[n][0]);
+        close(pipeBuffer[n][1]);
+    }
+    if (wait_for_comp)
+    {
+        while ( wait() > 0 ) {};
+    }
 
 
 }
