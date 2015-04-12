@@ -233,32 +233,31 @@ void unsetEnv(argNode* args){
                 printf("Variable %s does not exist.\n", name);
 }
 
-argNode* splitToTokens(char* string, char* delimiter)
+argNode* stringTok(char* string, char* delimiter)
 {
     char* token;
-    char* tmp = strdup(string);
-    token = strtok(tmp, delimiter);
-    argNode* head = malloc(sizeof(argNode));
-    head->next = NULL;
-    if (token != NULL)
-    {
-        head->argVal = token;
-    }
-    else
-    {
-        head->argVal = tmp;
-    }
-    argNode* currentNode = head;
-    token = strtok(NULL, delimiter); 
-    while (token != NULL)
-    {
-          currentNode->next = malloc(sizeof(argNode));
-          currentNode = currentNode->next;
-          currentNode->argVal = token;
-          currentNode->next = NULL;  
+    char* tmp = strdup(string); //DO NOT MODIFY string. It's a POINTER
+    token = strtok(tmp, delimiter); //Returns pointer to the next token
+
+
+    argNode* point = malloc(sizeof(argNode));//Create new node
+    point->next = NULL;
+
+
+    if (token != NULL) point->argVal = token; //Until we reach the end of the tokens
+    else point->argVal = tmp; //Nothing to tokenize
+    argNode* save = point; //Save head of the Linked List
+
+
+    token = strtok(NULL, delimiter);//Grab next token
+    while (token != NULL){ //Fill out nodes with remaining tokens
+          point->next = malloc(sizeof(argNode));
+          point = point->next;
+          point->argVal = token;
+          point->next = NULL;  
           token = strtok(NULL, delimiter); 
     }
-    return head;
+    return save; //Return the head
 }
 
 
@@ -280,7 +279,7 @@ aliasArgReplace(argNode* args){
             }
             if (aliasLoop == 100 || aliasLoop == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
             if (hasWhitespace(args->argVal) && !whitespaceOnly(args->argVal)){ //if spaces exist in alias
-                args = splitToTokens(args->argVal, " \t"); //break it into tokens about the spaces
+                args = stringTok(args->argVal, " \t"); //break it into tokens about the spaces
                 argNode* currentNode = args; //define the currentNode nose
                 while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
                 currentNode->next = original->next;// reset currentNode node -> next for next loop
@@ -402,33 +401,6 @@ int has_character(char* string, char ch)
     return 0;
 }
 
-argNode* split_to_tokens(char* string, char* delimiter)
-{
-    char* token;
-    char* tmp = strdup(string);
-    token = strtok(tmp, delimiter);
-    argNode* head = malloc(sizeof(argNode));
-    head->next = NULL;
-    if (token != NULL)
-    {
-        head->argVal = token;
-    }
-    else
-    {
-        head->argVal = tmp;
-    }
-    argNode* current = head;
-    token = strtok(NULL, delimiter); 
-    while (token != NULL)
-    {
-          current->next = malloc(sizeof(argNode));
-          current = current->next;
-          current->argVal = token;
-          current->next = NULL;  
-          token = strtok(NULL, delimiter); 
-    }
-    return head;
-}
 
 int get_args_list_size(argNode * head)
 {
@@ -587,29 +559,27 @@ commandBlock(argNode* args){
         } */
         if ( !has_character(commandTable[val]->argVal, '/') ) //If we do not have the '/' character ?No path to bin?
         {
-            char* path = getenv("PATH");
-            argNode* paths = split_to_tokens(path, ":");
-            argNode* list_path = paths;
+            char* path = getenv("PATH"); //Grab that path
+
+            argNode* paths = stringTok(path, ":"); //Paths is returned with a Linked List of tokenized values
+
+            argNode* list_path = paths; //Copy over paths
             char* fname;
             int found = 0;
-            while (list_path != NULL && found == 0)
-            {
+            while (list_path != NULL && found == 0){
                 char* temp = concat(list_path->argVal, "/");
                 fname = concat(temp, commandTable[val]->argVal);
                 free(temp);
-                if( access( fname, F_OK ) != -1 )
-                {
+                if( access( fname, F_OK ) != -1 ){
                     found = 1;
                     commandTable[val]->argVal = fname;
                 }
-                else
-                {
+                else{
                     free(fname);
                 }
                 list_path = list_path->next;
             }
-            if (found == 0)
-            {
+            if (found == 0){
                 fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }

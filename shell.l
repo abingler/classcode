@@ -23,7 +23,7 @@
                         	replaceEscape(words);
                         	if (hasWhitespace(words))
                         	{
-                        		yylval.argN = splitToTokens(words, " \t");
+                        		yylval.argN = stringTok(words, " \t");
                         	    return ARGS;
                         	}
                         	
