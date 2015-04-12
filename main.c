@@ -191,7 +191,7 @@ void alias(argNode* args)
 void unalias(argNode* args)
 {
     if (args->next != NULL) {
-        printf("no next arg\n");
+        //printf("no next arg\n");
         removeByAlias(&aliasHead, args->next->argVal);}
     else fprintf(stderr, "error on line %d: too few args for unalias\n", yylineno);
 }
@@ -336,7 +336,7 @@ char *replace(char *str, char *orig, char * rep) /*replace string with new subst
     return buffer;
 }
 
-char * insertEnv(char* input){ /*function extrats env variable*/
+char *insertEnv(char* input){ /*function extrats env variable*/
     char * envvar = input;
     int i;
     int validFlag = 0;

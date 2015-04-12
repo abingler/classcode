@@ -12,18 +12,18 @@
 
 
 [a-zA-Z0-9\/\$\{\}\~/.|><&*?-]+ 		{	yylval.string = strdup(yytext);
-							yylval.string = insertEnv(yylval.string);
+							yylval.string = (char*) insertEnv(yylval.string);
 							replaceEscape(yylval.string);
 							return WORD;
 						}
 
 [^ \t\r\n\v\f;]*        {//Zero or more copies of anything except, " \f\n\r\t\v"
 							char* words=strdup(yytext);
-                        	words=insertEnv(words);
+                        	words= (char*) insertEnv(words);
                         	replaceEscape(words);
                         	if (hasWhitespace(words))
                         	{
-                        		yylval.argN = stringTok(words, " \t");
+                        		yylval.argN = (argNode*) stringTok(words, " \t");
                         	    return ARGS;
                         	}
                         	
