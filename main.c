@@ -15,9 +15,9 @@ typedef struct node { /*all nodes in alias linked list need a name value and poi
     char* alias;
     char* val;
     struct node* next;
-} node_t;
+} nodeT;
 
-node_t* aliasHead; /*points to the head of the linked list*/
+nodeT* aliasHead; /*points to the head of the linked list*/
 
 
 int main()
@@ -55,8 +55,8 @@ int main()
 
 char * insertEnv(char* input);
 
-void cd(arg_node* args){
-    arg_node* currentNode = args->next; //currentNode equals arg after cd
+void cd(argNode* args){
+    argNode* currentNode = args->next; //currentNode equals arg after cd
     int evenNodes = 0;
     int validCheck;
     char* location;
@@ -73,11 +73,11 @@ void cd(arg_node* args){
         }
     }
     else{
-        //printf("args->arg_val = %s \n",args->arg_val);
-        //printf("args->next->arg_val = %s \n",args->next->arg_val);
-        //location = args->next->arg_val;          /*change dir*/
+        //printf("args->argVal = %s \n",args->argVal);
+        //printf("args->next->argVal = %s \n",args->next->argVal);
+        location = args->next->argVal;          /*change dir*/
         args = args->next;
-        location = args->arg_val;
+        location = args->argVal;
     }
     validCheck = chdir(location); //attempt to change path and check if its valid
     if (validCheck != 0) fprintf(stderr, "error at line %d:'%s' does not exist here\n", yylineno, location);
@@ -86,9 +86,9 @@ void cd(arg_node* args){
     setenv("PWD", pwd, 1);
 }
 
-void push(node_t** head, char* alias, char* val) { /*add new node to linked list*/
-    node_t* currentNode = *head; /*define currentNode as pointing to head*/
-    node_t* newNode = malloc(sizeof(node_t)); /*make space for new node*/
+void push(nodeT** head, char* alias, char* val) { /*add new node to linked list*/
+    nodeT* currentNode = *head; /*define currentNode as pointing to head*/
+    nodeT* newNode = malloc(sizeof(nodeT)); /*make space for new node*/
     newNode->alias = alias; /*define properties of new node*/
     newNode->val = val;
     newNode->next = NULL; /*new node should be at the end of the list*/
@@ -114,18 +114,18 @@ void push(node_t** head, char* alias, char* val) { /*add new node to linked list
     
 }
 
-void printAliasList(node_t* head) /*print alias list duh*/
+void printAliasList(nodeT* head) /*print alias list duh*/
 {
-    node_t* currentNode = head; /*define the passed in head as the currentNode node*/
+    nodeT* currentNode = head; /*define the passed in head as the currentNode node*/
     while (currentNode != NULL)/*while there are nodes in the list*/
     {
         printf("alias %s='%s'\n", currentNode->alias, currentNode->val); /*print info for currentNode node*/
         currentNode = currentNode->next;/*go to next node*/
     }
 }
-char* retrieveVal(node_t* head, char* alias)/*search the list and return the value of a given alias */
+char* retrieveVal(nodeT* head, char* alias)/*search the list and return the value of a given alias */
 {
-    node_t* currentNode = head;
+    nodeT* currentNode = head;
     while (currentNode != NULL) /*while not at the end of list*/
     {
         if (strcmp(currentNode->alias, alias) == 0)/*if match found*/
@@ -144,9 +144,9 @@ char* aliasReplace(char* alias)
     return alias; /*else return the original input*/
 }
 
-int removeByAlias(node_t** head, char * alias) { /*search for a node with a matching alias and remove it*/
-    node_t* currentNode = *head; /*define start of list*/
-    node_t* prev = NULL; /*track previous node to repair list*/
+int removeByAlias(nodeT** head, char * alias) { /*search for a node with a matching alias and remove it*/
+    nodeT* currentNode = *head; /*define start of list*/
+    nodeT* prev = NULL; /*track previous node to repair list*/
     while (1) {/*search through list untill..*/
         if (currentNode == NULL) return -1; /*if end of the list is reached with out a match return -1 for err*/
         if (strcmp(currentNode->val, alias) == 0) break;/*break if match is found*/
@@ -159,9 +159,9 @@ int removeByAlias(node_t** head, char * alias) { /*search for a node with a matc
     return 0;
 }
 
-void alias(arg_node* args)
+void alias(argNode* args)
 {
-    arg_node* currentNode = args->next;
+    argNode* currentNode = args->next;
     int n = 0;
     while (currentNode != NULL && n != 2)
     {
@@ -170,9 +170,9 @@ void alias(arg_node* args)
     }
     if (n == 2)
     {
-        char* arg_alias = args->next->arg_val;
-        char* arg_value = args->next->next->arg_val;
-        push(&aliasHead, arg_alias, arg_value);
+        char* argAlias = args->next->argVal;
+        char* argValue = args->next->next->argVal;
+        push(&aliasHead, argAlias, argValue);
     }
     else if (n == 0)
     {
@@ -183,11 +183,11 @@ void alias(arg_node* args)
         fprintf(stderr, "error at line %d: incorrect number of args for alias\n", yylineno);
     }
 }
-void unalias(arg_node* args)
+void unalias(argNode* args)
 {
     if (args->next != NULL) {
         printf("no next arg\n");
-        removeByAlias(&aliasHead, args->next->arg_val);}
+        removeByAlias(&aliasHead, args->next->argVal);}
     else fprintf(stderr, "error at line %d: too few args for unalias\n", yylineno);
 }
 void bye()
@@ -196,12 +196,13 @@ void bye()
     exit(0);
 }
 
-void setEnv(arg_node* args)
+
+void setEnv(argNode* args)
 {
-    arg_node* currentNode = args->next;
+    argNode* currentNode = args->next;
     if(currentNode->next != NULL && currentNode->next->next == NULL){//2 and only 2 vars
-        char* envName = insertEnv(currentNode->arg_val);/*extract word1*/
-        char* envVal = insertEnv(currentNode->next->arg_val);/*extract word2*/
+        char* envName = insertEnv(currentNode->argVal);/*extract word1*/
+        char* envVal = insertEnv(currentNode->next->argVal);/*extract word2*/
         int result = setenv(envName, envVal, 1);
         if(result == -1){
             printf("Failed to set variable %s to %s.\n", envName, envVal);
@@ -223,37 +224,37 @@ void printEnv()
             printf("%s> \n",path);
 }
 
-void unsetEnv(arg_node* args){
-            arg_node* currentNode = args->next;
-            char* name = currentNode->arg_val;
+void unsetEnv(argNode* args){
+            argNode* currentNode = args->next;
+            char* name = currentNode->argVal;
             if(getenv(name))
                 unsetenv(name);\
             else
                 printf("Variable %s does not exist.\n", name);
 }
 
-arg_node* splitToTokens(char* string, char* delimiter)
+argNode* splitToTokens(char* string, char* delimiter)
 {
     char* token;
     char* tmp = strdup(string);
     token = strtok(tmp, delimiter);
-    arg_node* head = malloc(sizeof(arg_node));
+    argNode* head = malloc(sizeof(argNode));
     head->next = NULL;
     if (token != NULL)
     {
-        head->arg_val = token;
+        head->argVal = token;
     }
     else
     {
-        head->arg_val = tmp;
+        head->argVal = tmp;
     }
-    arg_node* currentNode = head;
+    argNode* currentNode = head;
     token = strtok(NULL, delimiter); 
     while (token != NULL)
     {
-          currentNode->next = malloc(sizeof(arg_node));
+          currentNode->next = malloc(sizeof(argNode));
           currentNode = currentNode->next;
-          currentNode->arg_val = token;
+          currentNode->argVal = token;
           currentNode->next = NULL;  
           token = strtok(NULL, delimiter); 
     }
@@ -261,26 +262,26 @@ arg_node* splitToTokens(char* string, char* delimiter)
 }
 
 
-aliasArgReplace(arg_node* args){
+aliasArgReplace(argNode* args){
     int nestedAliasLoop = 0;
     int aliasLoop = 0; //guard against infinite expansion
-    arg_node* original = args; //first
+    argNode* original = args; //first
     while(nestedAliasLoop<100){
         aliasLoop =0;
-        while(args->arg_val != aliasReplace(args->arg_val) && aliasLoop < 100) //where an alias exists
+        while(args->argVal != aliasReplace(args->argVal) && aliasLoop < 100) //where an alias exists
             {
-                args->arg_val = aliasReplace(args->arg_val);
-                /*printf("debug1a args->arg_val = %s\n",args->arg_val );
+                args->argVal = aliasReplace(args->argVal);
+                /*printf("debug1a args->argVal = %s\n",args->argVal );
                 if(args->next != NULL){
                     args = args->next;
-                    printf("debug1b args->arg_val = %s\n",args->arg_val );
+                    printf("debug1b args->argVal = %s\n",args->argVal );
                 }*/
                 aliasLoop++;
             }
             if (aliasLoop == 100 || aliasLoop == 0) break; //haveing over 100 alias in args is unlikly most likly a loop
-            if (hasWhitespace(args->arg_val) && !whitespaceOnly(args->arg_val)){ //if spaces exist in alias
-                args = splitToTokens(args->arg_val, " \t"); //break it into tokens about the spaces
-                arg_node* currentNode = args; //define the currentNode nose
+            if (hasWhitespace(args->argVal) && !whitespaceOnly(args->argVal)){ //if spaces exist in alias
+                args = splitToTokens(args->argVal, " \t"); //break it into tokens about the spaces
+                argNode* currentNode = args; //define the currentNode nose
                 while (currentNode->next != NULL) currentNode = currentNode->next; //move to the next node while it exists
                 currentNode->next = original->next;// reset currentNode node -> next for next loop
                 free(original);
@@ -294,7 +295,7 @@ aliasArgReplace(arg_node* args){
     else
     {
         fprintf(stderr, "on line %d: infinite alias error occured\n", yylineno);
-        arg_node* prev = NULL;//empty args list and free nodes
+        argNode* prev = NULL;//empty args list and free nodes
         while (args != NULL){
                 prev = args;
                 args = args->next;
@@ -331,19 +332,19 @@ char *replace(char *str, char *orig, char * rep) /*replace string with new subst
 }
 
 char * insertEnv(char* input){ /*function extrats env variable*/
-    char * s = input;
+    char * envvar = input;
     int i;
     int validFlag = 0;
     int start;
     int end;
-    for (i = 0; i < strlen(s); i++) /*iterate through input*/
+    for (i = 0; i < strlen(envvar); i++) /*iterate through input*/
     {
-        if(s[i] == '$') start = i;
-        if(s[i] == '{' && i == start+1) validFlag = 1;
-        if(s[i] == '}' && validFlag)
+        if(envvar[i] == '$') start = i;
+        if(envvar[i] == '{' && i == start+1) validFlag = 1;
+        if(envvar[i] == '}' && validFlag)
         {
             char subbuf[4096];
-            memcpy(subbuf, &s[start], i-start+1);
+            memcpy(subbuf, &envvar[start], i-start+1);
             subbuf[i-start+1] = '\0';
 
             char * var; /*extrat var from ${var}*/
@@ -351,22 +352,22 @@ char * insertEnv(char* input){ /*function extrats env variable*/
             var = var + 2;              //get rid of ${
             var[i-start-2] = '\0';          //get rid of ending }
             
-            s = replace(s, subbuf, getenv(var));
+            envvar = replace(envvar, subbuf, getenv(var));
         }
     
     }
-    return s;
+    return envvar;
 }
 
 void replaceEscape(char* str)
 {
-    char* p_read = str;
-    char* p_write = str;
-    while (*p_read) {
-        *p_write = *p_read++;
-        p_write += (*p_write != '\\' || *(p_write + 1) == '\\');
+    char* pRead = str;
+    char* pWrite = str;
+    while (*pRead) {
+        *pWrite = *pRead++;
+        pWrite += (*pWrite != '\\' || *(pWrite + 1) == '\\');
     }
-    *p_write = '\0';
+    *pWrite = '\0';
 }
 
 int hasWhitespace(char* string)
@@ -390,7 +391,6 @@ int whitespaceOnly(char* string)
 }
 
 
-
 /*New Functions ****************************************************************************/
 int has_character(char* string, char ch)
 {
@@ -402,46 +402,46 @@ int has_character(char* string, char ch)
     return 0;
 }
 
-arg_node* split_to_tokens(char* string, char* delimiter)
+argNode* split_to_tokens(char* string, char* delimiter)
 {
     char* token;
     char* tmp = strdup(string);
     token = strtok(tmp, delimiter);
-    arg_node* head = malloc(sizeof(arg_node));
+    argNode* head = malloc(sizeof(argNode));
     head->next = NULL;
     if (token != NULL)
     {
-        head->arg_val = token;
+        head->argVal = token;
     }
     else
     {
-        head->arg_val = tmp;
+        head->argVal = tmp;
     }
-    arg_node* current = head;
+    argNode* current = head;
     token = strtok(NULL, delimiter); 
     while (token != NULL)
     {
-          current->next = malloc(sizeof(arg_node));
+          current->next = malloc(sizeof(argNode));
           current = current->next;
-          current->arg_val = token;
+          current->argVal = token;
           current->next = NULL;  
           token = strtok(NULL, delimiter); 
     }
     return head;
 }
 
-int get_args_list_size(arg_node * head)
+int get_args_list_size(argNode * head)
 {
-    arg_node * current = head;
+    argNode * current = head;
     int counter = 0;
     while (current != NULL)
     {
-        if (strcmp(current->arg_val, ">") != 0 &&
-            strcmp(current->arg_val, ">>") != 0 &&
-            strcmp(current->arg_val, "<") != 0 &&
-            strcmp(current->arg_val, "|") != 0 &&
-            (current->arg_val[0]!='2' && current->arg_val[1]!='>') &&
-            strcmp(current->arg_val, "&") != 0) {
+        if (strcmp(current->argVal, ">") != 0 &&
+            strcmp(current->argVal, ">>") != 0 &&
+            strcmp(current->argVal, "<") != 0 &&
+            strcmp(current->argVal, "|") != 0 &&
+            (current->argVal[0]!='2' && current->argVal[1]!='>') &&
+            strcmp(current->argVal, "&") != 0) {
                 counter++;
                 current = current->next; 
         }
@@ -453,12 +453,12 @@ int get_args_list_size(arg_node * head)
 
 /*END New Functions *************************************************************************/
 
-commandBlock(arg_node* args)
-{
+
+commandBlock(argNode* args){
 
 
-    arg_node* tempNode = args;
-    arg_node* currentNode = args;
+    argNode* tempNode = args;
+    argNode* currentNode = args;
     while(args->next!=NULL){
     args = args->next;
     args = aliasArgReplace(args);
@@ -467,9 +467,10 @@ commandBlock(arg_node* args)
     args = aliasArgReplace(args);
 
     currentNode = args;
+    
     while (currentNode != NULL)
     {
-        printf("%s\n",currentNode->arg_val);
+        printf("%s\n",currentNode->argVal);
         currentNode = currentNode->next;
     }
 
@@ -477,7 +478,7 @@ commandBlock(arg_node* args)
     const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
     int i;
     for(i = 0; i< 8; i++){
-        if (strcmp(args->arg_val, Commands[i]) == 0){
+        if (strcmp(args->argVal, Commands[i]) == 0){
             switch (i){
                 case 0:
                     bye();
@@ -508,28 +509,28 @@ commandBlock(arg_node* args)
     }
 
     //Variables for CommandTable (Should be at top of commandBlock?)
-    arg_node* list = args;
+    argNode* list = args;
     int pipesFound = 0;
-    arg_node* temp = args;
+    argNode* temp = args;
     int val = 0;
     int test = 0;
 
 
     while (list != NULL){ //Determine pipes found
-        if (strcmp(list->arg_val, "|") == 0){
+        if (strcmp(list->argVal, "|") == 0){
             pipesFound++;
         }
         list = list->next;
     }
  
-    arg_node** commandTable = malloc( //Create Comand Table
-        sizeof(arg_node*)*(pipesFound+1)); //+1 for 0 pipes case
+    argNode** commandTable = malloc( //Create Comand Table
+        sizeof(argNode*)*(pipesFound+1)); //+1 for 0 pipes case
 
 
     list = args;
     while (list->next != NULL){ //Parse the command table out
-        arg_node* node2 = list->next; 
-        if (strcmp(list->next->arg_val, "|") == 0)
+        argNode* node2 = list->next; 
+        if (strcmp(list->next->argVal, "|") == 0)
         {
             commandTable[val++] = temp; //Grabbing the head of each set of arguments
             temp = list->next->next;
@@ -550,33 +551,31 @@ commandBlock(arg_node* args)
 
     /* //TESTING COMMANDTABLE
     for(test = 0; test <= val; test++){
-        printf("Value in commandTable[%d] is: %s\n", test, commandTable[test]->arg_val);
+        printf("Value in commandTable[%d] is: %s\n", test, commandTable[test]->argVal);
     } */
-
-
 
 
 
     for (val = 0; val < pipesFound + 1; val++) //For each group of commands
     {
-        arg_node* list = commandTable[val];
+        argNode* list = commandTable[val];
        /* while (list != NULL)
         {
-            arg_node* original = list->next;
-            if (has_character(list->arg_val, '*') || has_character(list->arg_val, '?')) //Do we have any wildcard characters here //WILDCARDING
+            argNode* original = list->next;
+            if (has_character(list->argVal, '*') || has_character(list->argVal, '?')) //Do we have any wildcard characters here //WILDCARDING
             {
                glob_t globbuf; //Getcha globbins
-               if (glob(list->arg_val, 0, NULL, &globbuf) == 0)
+               if (glob(list->argVal, 0, NULL, &globbuf) == 0)
                {
 
                   size_t i;
-                  arg_node* iter = list;
+                  argNode* iter = list;
                   for (i = 0; i < globbuf.gl_pathc; i++)
                   {
-                    iter->arg_val = strdup(globbuf.gl_pathv[i]);
+                    iter->argVal = strdup(globbuf.gl_pathv[i]);
                     if (i != globbuf.gl_pathc - 1)
                     {
-                      iter->next = malloc(sizeof(arg_node));
+                      iter->next = malloc(sizeof(argNode));
                       iter = iter->next;
                     }
                   }
@@ -586,22 +585,22 @@ commandBlock(arg_node* args)
             }
             list = original;
         } */
-        if ( !has_character(commandTable[val]->arg_val, '/') ) //If we do not have the '/' character ?No path to bin?
+        if ( !has_character(commandTable[val]->argVal, '/') ) //If we do not have the '/' character ?No path to bin?
         {
             char* path = getenv("PATH");
-            arg_node* paths = split_to_tokens(path, ":");
-            arg_node* list_path = paths;
+            argNode* paths = split_to_tokens(path, ":");
+            argNode* list_path = paths;
             char* fname;
             int found = 0;
             while (list_path != NULL && found == 0)
             {
-                char* temp = concat(list_path->arg_val, "/");
-                fname = concat(temp, commandTable[val]->arg_val);
+                char* temp = concat(list_path->argVal, "/");
+                fname = concat(temp, commandTable[val]->argVal);
                 free(temp);
                 if( access( fname, F_OK ) != -1 )
                 {
                     found = 1;
-                    commandTable[val]->arg_val = fname;
+                    commandTable[val]->argVal = fname;
                 }
                 else
                 {
@@ -611,15 +610,15 @@ commandBlock(arg_node* args)
             }
             if (found == 0)
             {
-                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->arg_val);
+                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }
         }
         else
         {
-            if( access( commandTable[val]->arg_val, F_OK|X_OK ) != 0 )
+            if( access( commandTable[val]->argVal, F_OK|X_OK ) != 0 )
             {
-                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->arg_val);
+                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }
         }
@@ -644,9 +643,9 @@ commandBlock(arg_node* args)
             int errisstdout = 0;
             char* curr_arg;
             int i = 0;
-            arg_node* list = commandTable[val];
+            argNode* list = commandTable[val];
             while(list != NULL) {
-                curr_arg = list->arg_val;
+                curr_arg = list->argVal;
                 if (i<arg_size-1) {
                 argv[i] = curr_arg;} //get args before >,<,|,etc
                 list = list->next;
@@ -657,7 +656,7 @@ commandBlock(arg_node* args)
                         fprintf(stderr, "error at line %d: no output file specified after >\n", yylineno );
                         return;
                     }
-                    output_file = list->arg_val;
+                    output_file = list->argVal;
                     list = list->next;
                     i++;
                 } else if (strcmp(curr_arg, "<") == 0) {//new file for input
@@ -666,7 +665,7 @@ commandBlock(arg_node* args)
                         fprintf(stderr, "error at line %d: no input file specified after <\n", yylineno );
                         return;
                     }
-                    input_file = list->arg_val;
+                    input_file = list->argVal;
                     list = list->next;
                     i++;
                 } else if (strcmp(curr_arg, "2>$1") == 0) {
@@ -720,7 +719,7 @@ commandBlock(arg_node* args)
                 for(g = 0; g < arg_size+1; g++){
                     printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
-                execve( commandTable[val]->arg_val, argv, environ );
+                execve( commandTable[val]->argVal, argv, environ );
                 perror("execve");
                 _exit(EXIT_FAILURE);
             }
@@ -730,10 +729,10 @@ commandBlock(arg_node* args)
             int arg_size = get_args_list_size(commandTable[val]);
             char *argv[arg_size+1];
             int i;
-            arg_node* list = commandTable[val];
+            argNode* list = commandTable[val];
             for (i = 0; i < arg_size; i++)
             {
-                argv[i] = list->arg_val;
+                argv[i] = list->argVal;
                 list = list->next;
             }
             argv[arg_size] = NULL;
@@ -750,7 +749,7 @@ commandBlock(arg_node* args)
                 for(g = 0; g < arg_size+1; g++){
                     printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
-                execve( commandTable[val]->arg_val, argv, environ );
+                execve( commandTable[val]->argVal, argv, environ );
                 perror("execve");
                 _exit(EXIT_FAILURE);
             }
@@ -760,10 +759,10 @@ commandBlock(arg_node* args)
             int arg_size = get_args_list_size(commandTable[val]);
             char *argv[arg_size+1];
             int i;
-            arg_node* list = commandTable[val];
+            argNode* list = commandTable[val];
             for (i = 0; i < arg_size; i++)
             {
-                argv[i] = list->arg_val;
+                argv[i] = list->argVal;
                 list = list->next;
             }
             argv[arg_size] = NULL;
@@ -781,7 +780,7 @@ commandBlock(arg_node* args)
                 for(g = 0; g < arg_size+1; g++){
                     printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
-                execve( commandTable[val]->arg_val, argv, environ );
+                execve( commandTable[val]->argVal, argv, environ );
                 perror("execve");
                 _exit(EXIT_FAILURE);
             }
