@@ -207,43 +207,42 @@ char* str_replace_first(char* string, char* substr, char* replacement)
 /* ARGS Linked List Stuff */
 int get_args_list_size(arg_node * head)
 {
-    arg_node * current = head; //Set current to head
+    arg_node * current = head;
     int counter = 0;
-    while (current != NULL) //While we haven't reached the end of the linked list
+    while (current != NULL)
     {
         if (strcmp(current->arg_str, ">") != 0 &&
             strcmp(current->arg_str, ">>") != 0 &&
             strcmp(current->arg_str, "<") != 0 &&
             strcmp(current->arg_str, "|") != 0 &&
-            (current->arg_str[0]!='2' && current->arg_str[1]!='>') && //Not too sure what this line does
-            strcmp(current->arg_str, "&") != 0) {//IF we don't have any metacharacters in the strings
-                counter++; //Increment non-metacharacter counter
-                current = current->next; //Move to next node
+            (current->arg_str[0]!='2' && current->arg_str[1]!='>') &&
+            strcmp(current->arg_str, "&") != 0) {
+                counter++;
+                current = current->next; 
         }
-        else break; //Stop once we reach a metacharacter
+        else break;
     }
     return counter;
 }
 
-arg_node* split_to_tokens(char* string, char* delimiter) //Returns arg_node
+arg_node* split_to_tokens(char* string, char* delimiter)
 {
     char* token;
     char* tmp = strdup(string);
-    token = strtok(tmp, delimiter); //Breaks tmp into zero or more empty tokens, returns pointer to next token
-    arg_node* head = malloc(sizeof(arg_node)); //Create empty node head
+    token = strtok(tmp, delimiter);
+    arg_node* head = malloc(sizeof(arg_node));
     head->next = NULL;
     if (token != NULL)
     {
-        head->arg_str = token; //Point head to token value
+        head->arg_str = token;
     }
     else
     {
-        head->arg_str = tmp; //Else point it to the original string
-
+        head->arg_str = tmp;
     }
-    arg_node* current = head; //Create current which points to head
-    token = strtok(NULL, delimiter); //Clear the token value?
-    while (token != NULL) //No idea how this works then
+    arg_node* current = head;
+    token = strtok(NULL, delimiter); 
+    while (token != NULL)
     {
           current->next = malloc(sizeof(arg_node));
           current = current->next;
@@ -477,6 +476,7 @@ void run_command(arg_node* args)
     int i;
     char* output_f;
     int childBI_PID;
+    printf("MORE TESTING");
     for (i = 0; i < 7; i++)
     {
         if (strcmp(args->arg_str, built_in[i]) == 0)
@@ -519,145 +519,150 @@ void run_command(arg_node* args)
             }
         }
     }
+    printf("TESTING");
     arg_node* current = args;
     int num_pipes = 0;
-    while (current != NULL) //Run through args
+    while (current != NULL)
     {
-        if (strcmp(current->arg_str, "|") == 0) num_pipes++; //If pipe found in arg, increment count
-        current = current->next; //Point to next
+        if (strcmp(current->arg_str, "|") == 0) num_pipes++;
+        printf("Value is %s\n", current->arg_str); ///HUURRRRRRRRRRRRRRRRRRRRRRR
+        current = current->next;
     }
-    arg_node** arg_table = malloc(sizeof(arg_node*)*(num_pipes+1)); //Create arg table with size of arg_node times num_pipes (+1 to avoid 0 case?)
-    arg_node* h = args; //args is pointer to arg node passed in / Create new node pointer h
-    current = args; //set current equal to args pointer
+    arg_node** arg_table = malloc(sizeof(arg_node*)*(num_pipes+1));
+    arg_node* h = args;
+    current = args;
     int index = 0;
-    while (current->next != NULL) //Run through our arguments and save nodes before and after pipes in the arg_table
+    while (current->next != NULL)
     {
-        arg_node* next_node = current->next; //Create new node pointer, next_node, that points to next arg in line
-        if (strcmp(current->next->arg_str, "|") == 0) //If next arg node is a pipe, then...
+        arg_node* next_node = current->next;
+        if (strcmp(current->next->arg_str, "|") == 0)
         {
-            arg_table[index] = h; //Saving our nodes before pipes
-            h = current->next->next; //Set h pointer to skip a node
-            current->next = NULL; //Disconnect current node and the next node
-            index++; //Increment index
+            arg_table[index] = h;
+            h = current->next->next;
+            current->next = NULL;
+            index++;
         }
         current = next_node;
     }
-    if (h == NULL) //If he reached pass the bounds of the args list during the previous while loop, then we have a pipe at the end of the line
+    if (h == NULL)
     {
         fprintf(stderr, "error at line %d: pipe at EOL\n", yylineno);
-        free(arg_table); //Free the table of piped args and return
+        free(arg_table);
         return;
     }
-    arg_table[index] = h; //Save the very last argument being piped
+    arg_table[index] = h;
 
-    for (index = 0; index < num_pipes + 1; index++) //For num of pipes + 1
+    for (index = 0; index < num_pipes + 1; index++)
     {
-        arg_node* current = arg_table[index]; //Set current to the first argument piped
+        arg_node* current = arg_table[index];
         while (current != NULL)
         {
-            arg_node* original = current->next; //Save the next next node of current, as we might change it a bit coming up
-            if (has_character(current->arg_str, '*') || has_character(current->arg_str, '?')) //If we have a wildcard character in our string
+            arg_node* original = current->next;
+            if (has_character(current->arg_str, '*') || has_character(current->arg_str, '?'))
             {
-               glob_t globbuf; //Create glob_t structure for wildcarding, results will be stored in globbuff
-               if (glob(current->arg_str, 0, NULL, &globbuf) == 0) //If we have something matching 'whatever*' or 'whatever?'
+               glob_t globbuf;
+               if (glob(current->arg_str, 0, NULL, &globbuf) == 0)
                {
+
                   size_t i;
-                  arg_node* iter = current; //Create new node pointing to same node as current
-                  for (i = 0; i < globbuf.gl_pathc; i++) //For number of paths found
+                  arg_node* iter = current;
+                  for (i = 0; i < globbuf.gl_pathc; i++)
                   {
-                    iter->arg_str = strdup(globbuf.gl_pathv[i]); //Set iter->arg_str to each of out pathways
-                    if (i != globbuf.gl_pathc - 1) //If we have not yet reached the end of our paths
+                    iter->arg_str = strdup(globbuf.gl_pathv[i]);
+                    if (i != globbuf.gl_pathc - 1)
                     {
-                      iter->next = malloc(sizeof(arg_node)); //Create new next node for iter
-                      iter = iter->next; //Set iter to the next node and prepare to grab a new path
+                      iter->next = malloc(sizeof(arg_node));
+                      iter = iter->next;
                     }
                   }
-                  iter->next = original; //Finally, set the last next of iter to original, basically doing iterstuff...->original
-                  globfree(&globbuf); //Remove that globbuf
+                  iter->next = original;
+                  globfree(&globbuf);
                 }
             }
-            current = original; //Restore to next node
+            current = original;
         }
-        if ( !has_character(arg_table[index]->arg_str, '/') ) //More exception handling (Are we piping to/from a file?)
+        if ( !has_character(arg_table[index]->arg_str, '/') )
         {
-            if (getenv("PATH") == NULL) //No path handling
+            if (getenv("PATH") == NULL)
             {
                 fprintf(stderr, "error at line %d: 'PATH' unset\n", yylineno);
                 return;
             }
-            char* path = getenv("PATH"); //Set path
-            arg_node* paths = split_to_tokens(path, ":"); //Create arg_node paths based on
-            arg_node* current_path = paths; //Create new node equal to paths
+            char* path = getenv("PATH");
+            arg_node* paths = split_to_tokens(path, ":");
+            arg_node* current_path = paths;
             char* fname;
             int found = 0;
-            while (current_path != NULL && found == 0) //While our current path isn't null and we haven't found something
+            while (current_path != NULL && found == 0)
             {
                 char* temp = concat(current_path->arg_str, "/");
                 fname = concat(temp, arg_table[index]->arg_str);
                 free(temp);
-                if( access( fname, F_OK ) != -1 ) //Checks for existence of file (success == 1, error == -1)
+                if( access( fname, F_OK ) != -1 )
                 {
                     found = 1;
-                    arg_table[index]->arg_str = fname; //Set string equal to filename
+                    arg_table[index]->arg_str = fname;
                 }
                 else
                 {
-                    free(fname); //free filename as it does not exist
+                    free(fname);
                 }
-                current_path = current_path->next; //Move to next path token
+                current_path = current_path->next;
             }
             if (found == 0)
             {
-                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, arg_table[index]->arg_str); //File not found
+                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, arg_table[index]->arg_str);
                 return;
             }
         }
         else
         {
-            if( access( arg_table[index]->arg_str, F_OK|X_OK ) != 0 ) //If the filename exists or has execute permissions
+            if( access( arg_table[index]->arg_str, F_OK|X_OK ) != 0 )
             {
                 fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, arg_table[index]->arg_str);
                 return;
             }
         }
     }
-    if (num_pipes > 200) num_pipes = 200; //Checking for too many pipes in command
-    int pipe_array[200][2]; //200 rows, 2 columns each
+    if (num_pipes > 200) num_pipes = 200;
+    int pipe_array[200][2];
     int n;
-    for (n = 0; n < num_pipes; n++) //
+    for (n = 0; n < num_pipes; n++)
     {
-        if (pipe(pipe_array[n]) < 0)//Possibly not needed error checking
+        if (pipe(pipe_array[n]) < 0)
         {
             fprintf(stderr, "error at line %d: pipe failed\n", yylineno );
             return;
         }
     }
     int wait_for_comp = 1;
-    for (index = 0; index < num_pipes + 1; index++)//For each pipe+1 (LETS GET PIPING)
+    for (index = 0; index < num_pipes + 1; index++)
     {
-        if ( index == num_pipes ) { //If we reach the last pipe/ there are no pipes
-            int arg_size = get_args_list_size(arg_table[index])+1; //Get argument size
-            char *argv[ arg_size+1 ]; //Create argv with size of args+1
-            char* input_file = ""; //Set input file to "" (IO Redirection stuff)
-            char* output_file = ""; 
+        if ( index == num_pipes ) {
+            int arg_size = get_args_list_size(arg_table[index])+1;
+            char *argv[ arg_size+1 ];
+            char* input_file = "";
+            char* output_file = "";
             char* err_file = "";
-            int errisstdout = 0; 
+            int errisstdout = 0;
             char* curr_arg;
             int i = 0;
-            arg_node* current = arg_table[index]; //Set current head to latest head at index
-            while(current != NULL) { 
-                curr_arg = current->arg_str; // set current argument to argument in current node
-                if (i<arg_size-1) {argv[i] = curr_arg;} //get args before >,<,|,etc
-                current = current->next; //Skip to next node
+            arg_node* current = arg_table[index];
+            while(current != NULL) {
+                curr_arg = current->arg_str;
+                if (i<arg_size-1) {
+                    printf("Current is: %s\n", curr_arg); //END HERRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+                argv[i] = curr_arg;} //get args before >,<,|,etc
+                current = current->next;
                 i++;
                 if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0) { //new file for output
-                    if (current == NULL) //If no output file after > or >>
+                    if (current == NULL)
                     {
                         fprintf(stderr, "error at line %d: no output file specified after >\n", yylineno );
                         return;
                     }
-                    output_file = current->arg_str; //Set output file equal to the arg_str in current
-                    current = current->next; //Set output file equal to 
+                    output_file = current->arg_str;
+                    current = current->next;
                     i++;
                 } else if (strcmp(curr_arg, "<") == 0) {//new file for input
                     if (current == NULL)
@@ -715,61 +720,73 @@ void run_command(arg_node* args)
                     dup2(fileno(fp_out), STDOUT_FILENO);
                     fclose(fp_out);
                 }
+                int g = 0;
+                for(g = 0; g < arg_size+1; g++){
+                    printf("Value at argv[%d] is: %s", g, argv[g]);
+                }
                 execve( arg_table[index]->arg_str, argv, environ );
-                perror("execve"); //Print error
+                perror("execve");
                 _exit(EXIT_FAILURE);
             }
         }
-        else if ( index == 0 ) //If we are on the first pipe and we have pipes
+        else if ( index == 0 )
         {
-            int arg_size = get_args_list_size(arg_table[index]); //Get the size of the argument table
-            char *argv[arg_size+1]; //argv pointer to array with size arg_size+1
+            int arg_size = get_args_list_size(arg_table[index]);
+            char *argv[arg_size+1];
             int i;
-            arg_node* current = arg_table[index]; //Set current node equal to node in index
-            for (i = 0; i < arg_size; i++) //For each argument in arg_table
-            {
-                argv[i] = current->arg_str; //Saving each string of piped arguments in argv
-                current = current->next; //Move current to next slot
-            }
-            argv[arg_size] = NULL; //Set last location in table to NULL
-            int childPID = fork(); //Create child process
-            if ( childPID == 0 ) //Should always be 0 for child
-            {
-                dup2(pipe_array[index][1], STDOUT_FILENO); //Copies contents of pipe_array... to STDOUT_FILENO
-                for (n = 0; n < num_pipes; n++)
-                {
-                    close(pipe_array[n][0]); //Deallocates space
-                    close(pipe_array[n][1]); //Deallocates space
-                }
-                execve( arg_table[index]->arg_str, argv, environ );
-                perror("execve"); //Print error
-                _exit(EXIT_FAILURE); //Exits calling process, value EXIT_FAILURE is returned to the parent process
-            }
-        }
-        else //If we are in between pipes
-        {
-            int arg_size = get_args_list_size(arg_table[index]); //Return the size disregarding metacharacters of the node
-            char *argv[arg_size+1]; //Track number of arguments + 1
-            int i;
-            arg_node* current = arg_table[index]; //Set current node to the current indexed node
+            arg_node* current = arg_table[index];
             for (i = 0; i < arg_size; i++)
             {
-                argv[i] = current->arg_str; //Save string into nodes location in argv
+                argv[i] = current->arg_str;
                 current = current->next;
             }
-            argv[arg_size] = NULL; //Set last value of argv to NULL
+            argv[arg_size] = NULL;
             int childPID = fork();
             if ( childPID == 0 )
             {
-                dup2(pipe_array[index-1][0], STDIN_FILENO); //Copies conents of previous index to STDIN_FILENO
-                dup2(pipe_array[index][1], STDOUT_FILENO); //Copies contents of index to STDOUT_FILENO
+                dup2(pipe_array[index][1], STDOUT_FILENO);
                 for (n = 0; n < num_pipes; n++)
                 {
-                    close(pipe_array[n][0]);//Close pipes again
+                    close(pipe_array[n][0]);
                     close(pipe_array[n][1]);
                 }
-                execve( arg_table[index]->arg_str, argv, environ ); //Execute commands
-                perror("execve"); //Print error
+                int g = 0;
+                for(g = 0; g < arg_size+1; g++){
+                    printf("Value at argv[%d] is: %s", g, argv[g]);
+                }
+                execve( arg_table[index]->arg_str, argv, environ );
+                perror("execve");
+                _exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            int arg_size = get_args_list_size(arg_table[index]);
+            char *argv[arg_size+1];
+            int i;
+            arg_node* current = arg_table[index];
+            for (i = 0; i < arg_size; i++)
+            {
+                argv[i] = current->arg_str;
+                current = current->next;
+            }
+            argv[arg_size] = NULL;
+            int childPID = fork();
+            if ( childPID == 0 )
+            {
+                dup2(pipe_array[index-1][0], STDIN_FILENO);
+                dup2(pipe_array[index][1], STDOUT_FILENO);
+                for (n = 0; n < num_pipes; n++)
+                {
+                    close(pipe_array[n][0]);
+                    close(pipe_array[n][1]);
+                }
+                int g = 0;
+                for(g = 0; g < arg_size+1; g++){
+                    printf("Value at argv[%d] is: %s", g, argv[g]);
+                }
+                execve( arg_table[index]->arg_str, argv, environ );
+                perror("execve");
                 _exit(EXIT_FAILURE);
             }
         }
@@ -816,7 +833,7 @@ int main(int argc, char* argv[])
 %%
 commands: /* empty */
         | commands error TERMINATOR { yyerrok; }
-        | commands arg_list TERMINATOR { run_command($2); }
+        | commands arg_list TERMINATOR { printf("Test1"); run_command($2); }
         ;
 arg_list:
     WORD arg_list { $$ = malloc(sizeof(arg_node));

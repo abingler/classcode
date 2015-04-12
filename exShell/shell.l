@@ -1,7 +1,7 @@
 /*
 Precedence Rules:
-	Rules that are matched more specifically come first.
-	If both match the same, first rule written in this file is used.
+  Rules that are matched more specifically come first.
+  If both match the same, first rule written in this file is used.
 */
 %{
 #include "node.h"
