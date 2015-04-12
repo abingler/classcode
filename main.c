@@ -146,49 +146,49 @@ char* aliasReplace(char* alias)
 
 int removeByAlias(nodeT** head, char * alias) { /*search for a node with a matching alias and remove it*/
     nodeT* currentNode = *head; /*define start of list*/
-    nodeT* prevNode = NULL; /*track previous node to repair list*/
+    nodeT* prev = NULL; /*track previous node to repair list*/
     while (1) {/*search through list untill..*/
         if (currentNode == NULL) return -1; /*if end of the list is reached with out a match return -1 for err*/
         if (strcmp(currentNode->val, alias) == 0) break;/*break if match is found*/
-        prevNode = currentNode; /*iterate through list while tracking previous node*/
+        prev = currentNode; /*iterate through list while tracking previous node*/
         currentNode = currentNode->next;
     }
     if (currentNode == *head) *head = currentNode->next; /*id the first node is a match make the second node the new head*/
-    if (prevNode != NULL) prevNode->next = currentNode->next;/*make the previous node point to the node after the deleted node assuming that a previous node exists*/
+    if (prev != NULL) prev->next = currentNode->next;/*make the previous node point to the node after the deleted node assuming that a previous node exists*/
     free(currentNode); /*delete currentNode node*/
     return 0;
 }
 
 void alias(argNode* args)
 {
-    argNode* currentNode = args->next; // move past command arg
+    argNode* currentNode = args->next;
     int n = 0;
-    while (currentNode != NULL && n != 2) //while the current node exists and the number of nodes is not 2 iterate through the list
+    while (currentNode != NULL && n != 2)
     {
         n++;
         currentNode = currentNode->next;
     }
-    if (n == 2) //2 args found
+    if (n == 2)
     {
-        char* argAlias = args->next->argVal; //grab the second term from the args list
-        char* argValue = args->next->next->argVal;// grab the third term from the args list
-        push(&aliasHead, argAlias, argValue);// push to the alias list
+        char* argAlias = args->next->argVal;
+        char* argValue = args->next->next->argVal;
+        push(&aliasHead, argAlias, argValue);
     }
     else if (n == 0)
     {
-        printAliasList(aliasHead); // if no args print the list
+        printAliasList(aliasHead);
     }
-    else //error report
+    else
     {
-        fprintf(stderr, "error at line %d: incorrect number of args for alias\n", yylineno); 
+        fprintf(stderr, "error at line %d: incorrect number of args for alias\n", yylineno);
     }
 }
-void unalias(argNode* args) 
+void unalias(argNode* args)
 {
-    if (args->next != NULL) { //if at least one arg exist
-        //printf("no next arg\n");
-        removeByAlias(&aliasHead, args->next->argVal);}//remove the alias from the linked list
-    else fprintf(stderr, "error at line %d: too few args for unalias\n", yylineno); //else error report
+    if (args->next != NULL) {
+        printf("no next arg\n");
+        removeByAlias(&aliasHead, args->next->argVal);}
+    else fprintf(stderr, "error at line %d: too few args for unalias\n", yylineno);
 }
 void bye()
 {
@@ -199,38 +199,38 @@ void bye()
 
 void setEnv(argNode* args)
 {
-    argNode* currentNode = args->next; //skip command ark
+    argNode* currentNode = args->next;
     if(currentNode->next != NULL && currentNode->next->next == NULL){//2 and only 2 vars
         char* envName = insertEnv(currentNode->argVal);/*extract word1*/
         char* envVal = insertEnv(currentNode->next->argVal);/*extract word2*/
-        int result = setenv(envName, envVal, 1);//try to setenv
-        if(result == -1){//error report
+        int result = setenv(envName, envVal, 1);
+        if(result == -1){
             printf("Failed to set variable %s to %s.\n", envName, envVal);
         }
     }
     else{
-        printf("printenv requires 2 variables \n");//report incorrect number of inputs
+        printf("printenv requires 2 variables \n");
     }
 
 };
 
 void printEnv()
 {       
-            extern char **environ;  //use environ to print env in the path
+            extern char **environ;  
             int i=0;
             while(environ[i])
-                printf("%s\n", environ[i++]);//ptint env vars 
+                printf("%s\n", environ[i++]);
             char* path = getenv("PATH");
-            printf("%s> \n",path); // print path
+            printf("%s> \n",path);
 }
 
 void unsetEnv(argNode* args){
-            argNode* currentNode = args->next; //skip command arg
-            char* name = currentNode->argVal;// pull the value of the arg
-            if(getenv(name))// check if it exists in the path
-                unsetenv(name);//unset it if it does
+            argNode* currentNode = args->next;
+            char* name = currentNode->argVal;
+            if(getenv(name))
+                unsetenv(name);\
             else
-                printf("Variable %s does not exist.\n", name);//say so if it dosn't
+                printf("Variable %s does not exist.\n", name);
 }
 
 argNode* stringTok(char* string, char* delimiter)
@@ -261,7 +261,7 @@ argNode* stringTok(char* string, char* delimiter)
 }
 
 
-argNode* aliasArgReplace(argNode* args){
+aliasArgReplace(argNode* args){
     int nestedAliasLoop = 0;
     int aliasLoop = 0; //guard against infinite expansion
     argNode* original = args; //first
@@ -427,7 +427,7 @@ int get_args_list_size(argNode * head)
 /*END New Functions *************************************************************************/
 
 
-void commandBlock(argNode* args){
+commandBlock(argNode* args){
 
 
     argNode* tempNode = args;
@@ -562,16 +562,16 @@ void commandBlock(argNode* args){
         {
             char* path = getenv("PATH"); //Grab that path
             char* callCmd;
-            int access = 0;
+            int check = 0;
 
             argNode* tokedPath = stringTok(path, ":"); //Tokenize Paths
 
-            while (tokedPath != NULL && access == 0){ //
+            while (tokedPath != NULL && check == 0){ //
                 char* temp = concatenate(tokedPath->argVal, "/"); //Append / 
                 callCmd = concatenate(temp, commandTable[val]->argVal); //Append command (We want /bin/ls for example)
 
                  if(access(callCmd, F_OK ) != -1 ){ //Can we access this area (Will not always work)
-                    access = 1;
+                    check = 1;
                     commandTable[val]->argVal = callCmd;
                 }
                 else free(callCmd);
@@ -582,7 +582,7 @@ void commandBlock(argNode* args){
 
                 free(temp); //Overflow problems
             }
-            if (access == 0){
+            if (check == 0){
                 fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }
