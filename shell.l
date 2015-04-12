@@ -21,8 +21,7 @@
 							char* words=strdup(yytext);
                         	words= (char*) insertEnv(words);
                         	replaceEscape(words);
-                        	if (hasWhitespace(words))
-                        	{
+                        	if (hasWhitespace(words)){
                         		yylval.argN = (argNode*) stringTok(words, " \t");
                         	    return ARGS;
                         	}
