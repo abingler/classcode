@@ -401,10 +401,10 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         4,    4,    4,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    1,    1,    5,    1,    1,    1,    1,
-        1,    1,    1,    1,    5,    5,    5,    5,    5,    5,
-        5,    5,    5,    5,    5,    5,    5,    1,    6,    1,
-        1,    1,    1,    1,    5,    5,    5,    5,    5,    5,
+        1,    2,    1,    1,    1,    5,    1,    5,    1,    1,
+        1,    5,    1,    1,    5,    5,    5,    5,    5,    5,
+        5,    5,    5,    5,    5,    5,    5,    1,    6,    5,
+        1,    5,    5,    1,    5,    5,    5,    5,    5,    5,
         5,    5,    5,    5,    5,    5,    5,    5,    5,    5,
         5,    5,    5,    5,    5,    5,    5,    5,    5,    5,
         1,    1,    1,    1,    1,    1,    5,    5,    5,    5,
@@ -673,7 +673,8 @@ YY_DECL
 #line 11 "shell.l"
 
 
-#line 677 "lex.yy.c"
+
+#line 678 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -768,7 +769,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 13 "shell.l"
+#line 14 "shell.l"
 {	yylval.string = strdup(yytext);
 							yylval.string = insertEnv(yylval.string);
 							replaceEscape(yylval.string);
@@ -777,7 +778,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 19 "shell.l"
+#line 20 "shell.l"
 {//Zero or more copies of anything except, " \f\n\r\t\v"
 							char* words=strdup(yytext);
                         	words=insertEnv(words);
@@ -792,26 +793,26 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 32 "shell.l"
+#line 33 "shell.l"
 return NEWLINE;
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 33 "shell.l"
+#line 34 "shell.l"
 return NEWLINE;       
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 34 "shell.l"
+#line 35 "shell.l"
 /* ignore whitespace */;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 35 "shell.l"
+#line 36 "shell.l"
 ECHO;
 	YY_BREAK
-#line 815 "lex.yy.c"
+#line 816 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1821,7 +1822,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 35 "shell.l"
+#line 36 "shell.l"
 
 
 

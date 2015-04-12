@@ -30,33 +30,33 @@ int yywrap() /*somthing to do with yyin/yyout dont know yet*/
         int number;
         char* string;
         void* linkedlist;
-        arg_node* arg_n;
+        argNode* argN;
 }
 
 
 
 %token <string> WORD
-%token <arg_n> ARGS
-%type <arg_n> arg_list
+%token <argN> ARGS
+%type <argN> argList
 //%type <linkedlist> cmd
 //%type <string> arg
 %%
 
 commands:
         | commands command  {printf("%s> ",getenv("PWD"));}
-        | commands arg_list NEWLINE{commandBlock($2);printf("%s> ",getenv("PWD"));}
+        | commands argList NEWLINE{commandBlock($2);printf("%s> ",getenv("PWD"));}
 
 command:/*commands moved to commandBlock in main.c*/
         | NEWLINE /* ignore new line*/
         ;
 
-arg_list:
-    WORD arg_list { $$ = malloc(sizeof(arg_node));
+argList:
+    WORD argList { $$ = malloc(sizeof(argNode));
                     $$->next = $2;
-                    $$->arg_val = $1;}
+                    $$->argVal = $1;}
     |
-    ARGS arg_list {  $$ = $1;
-                     arg_node* current = $1;
+    ARGS argList {  $$ = $1;
+                     argNode* current = $1;
                      while (current->next != NULL) current = current->next;
                      current->next = $2;
                      //printf("%s\n",$1 );
@@ -67,9 +67,9 @@ arg_list:
                     }
 
     |
-    WORD          { $$ = malloc(sizeof(arg_node));
+    WORD          { $$ = malloc(sizeof(argNode));
                     $$->next = NULL;
-                    $$->arg_val = $1;
+                    $$->argVal = $1;
                     //printf("%s\n",$1 ); 
                 }
     ;

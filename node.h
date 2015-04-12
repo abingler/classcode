@@ -7,8 +7,8 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <glob.h>
-typedef struct args_node {
-    char* arg_val;
-    struct args_node * next;
-} arg_node;
+typedef struct argsNode {
+    char* argVal;
+    struct argsNode * next;
+} argNode;
 #endif
