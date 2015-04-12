@@ -54,6 +54,7 @@ int main()
 } */
 
 char * insertEnv(char* input);
+char* concatenate(char* dest, char* src);
 
 void cd(argNode* args){
     argNode* currentNode = args->next; //currentNode equals arg after cd
@@ -76,8 +77,12 @@ void cd(argNode* args){
         //printf("args->argVal = %s \n",args->argVal);
         //printf("args->next->argVal = %s \n",args->next->argVal);
         location = args->next->argVal;          /*change dir*/
-        args = args->next;
-        location = args->argVal;
+        //args = args->next;
+        //location = args->argVal;
+        if(location[0] == '~'){
+            location++;//move past '~''
+            location = concatenate(getenv("HOME"), location);//append location to home path
+        }
     }
     validCheck = chdir(location); //attempt to change path and check if its valid
     if (validCheck != 0) fprintf(stderr, "error on line %d:'%s' does not exist here\n", yylineno, location);
