@@ -47,7 +47,7 @@ commands:
         | commands argList NEWLINE{commandBlock($2);printf("%s> ",getenv("PWD"));}
 
 command:/*commands moved to commandBlock in main.c*/
-        | NEWLINE /* ignore new line*/
+         NEWLINE /* ignore new line*/
         ;
 
 argList:
