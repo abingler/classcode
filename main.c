@@ -69,7 +69,7 @@ void cd(argNode* args){
             location = (getenv("HOME"));  /*move to home*/
         }
         else{
-        fprintf(stderr, "error at line %d: 'HOME' == NULL\n", yylineno); 
+        fprintf(stderr, "error on line %d: 'HOME' == NULL\n", yylineno); 
         }
     }
     else{
@@ -80,7 +80,7 @@ void cd(argNode* args){
         location = args->argVal;
     }
     validCheck = chdir(location); //attempt to change path and check if its valid
-    if (validCheck != 0) fprintf(stderr, "error at line %d:'%s' does not exist here\n", yylineno, location);
+    if (validCheck != 0) fprintf(stderr, "error on line %d:'%s' does not exist here\n", yylineno, location);
     char pwd[4096];
     getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
     setenv("PWD", pwd, 1);
@@ -180,7 +180,7 @@ void alias(argNode* args)
     }
     else
     {
-        fprintf(stderr, "error at line %d: incorrect number of args for alias\n", yylineno);
+        fprintf(stderr, "error on line %d: incorrect number of args for alias\n", yylineno);
     }
 }
 void unalias(argNode* args)
@@ -188,7 +188,7 @@ void unalias(argNode* args)
     if (args->next != NULL) {
         printf("no next arg\n");
         removeByAlias(&aliasHead, args->next->argVal);}
-    else fprintf(stderr, "error at line %d: too few args for unalias\n", yylineno);
+    else fprintf(stderr, "error on line %d: too few args for unalias\n", yylineno);
 }
 void bye()
 {
@@ -583,7 +583,7 @@ commandBlock(argNode* args){
                 free(temp); //Overflow problems
             }
             if (check == 0){
-                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
+                fprintf(stderr, "error on line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }
         }
@@ -591,7 +591,7 @@ commandBlock(argNode* args){
         {
             if( access( commandTable[val]->argVal, F_OK|X_OK ) != 0 )
             {
-                fprintf(stderr, "error at line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
+                fprintf(stderr, "error on line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
                 return;
             }
         }
@@ -626,7 +626,7 @@ commandBlock(argNode* args){
                 if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0) { //new file for output
                     if (list == NULL)
                     {
-                        fprintf(stderr, "error at line %d: no output file specified after >\n", yylineno );
+                        fprintf(stderr, "error on line %d: no output file specified after >\n", yylineno );
                         return;
                     }
                     output_file = list->argVal;
@@ -635,7 +635,7 @@ commandBlock(argNode* args){
                 } else if (strcmp(curr_arg, "<") == 0) {//new file for input
                     if (list == NULL)
                     {
-                        fprintf(stderr, "error at line %d: no input file specified after <\n", yylineno );
+                        fprintf(stderr, "error on line %d: no input file specified after <\n", yylineno );
                         return;
                     }
                     input_file = list->argVal;
