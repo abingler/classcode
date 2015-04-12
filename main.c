@@ -261,7 +261,7 @@ argNode* stringTok(char* string, char* delimiter)
 }
 
 
-aliasArgReplace(argNode* args){
+argNode* aliasArgReplace(argNode* args){
     int nestedAliasLoop = 0;
     int aliasLoop = 0; //guard against infinite expansion
     argNode* original = args; //first
@@ -427,7 +427,7 @@ int get_args_list_size(argNode * head)
 /*END New Functions *************************************************************************/
 
 
-commandBlock(argNode* args){
+void commandBlock(argNode* args){
 
 
     argNode* tempNode = args;
