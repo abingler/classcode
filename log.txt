@@ -1,0 +1,184 @@
+exShell
+
+fib.c
+
+lex.yy.c
+
+lex.yy.o
+
+log.txt
+
+mainBackup.c
+
+main.c
+
+main.o
+
+Makefile
+
+node.h
+
+README.md
+
+README.txt
+
+shell
+
+shell.l
+
+shell.y
+
+test code
+
+test.txt
+
+text.txt
+
+Tutorials.txt
+
+UnixSystemCall
+s
+y.tab.c
+
+y.tab.h
+
+y.tab.o
+
+total 231
+drwxrwxrwx 1 root root  4096 Apr 12 18:10 
+exShell
+-rwxrwxrwx 1 root root   372 Apr 12 18:10 
+fib.c
+-rwxrwxrwx 1 root root 48300 Apr 12 18:31 
+lex.yy.c
+-rwxrwxrwx 1 root root 14712 Apr 12 18:31 
+lex.yy.o
+-rwxrwxrwx 1 root root   208 Apr 12 18:55 
+log.txt
+-rwxrwxrwx 1 root root 18580 Apr 12 14:46 
+mainBackup.c
+-rwxrwxrwx 1 root root 25432 Apr 12 18:28 
+main.c
+-rwxrwxrwx 1 root root 13204 Apr 12 18:31 
+main.o
+-rwxrwxrwx 1 root root   336 Apr  8 19:30 
+Makefile
+-rwxrwxrwx 1 root root   269 Apr 12 15:07 
+node.h
+-rwxrwxrwx 1 root root   660 Apr  8 17:15 
+README.md
+-rwxrwxrwx 1 root root   744 Apr 12 18:43 
+README.txt
+-rwxrwxrwx 1 root root 30441 Apr 12 18:31 
+shell
+-rwxrwxrwx 1 root root   906 Apr 12 18:33 
+shell.l
+-rwxrwxrwx 1 root root  3422 Apr 12 18:33 
+shell.y
+drwxrwxrwx 1 root root  4096 Apr 11 17:38 
+test code
+-rwxrwxrwx 1 root root   165 Apr 12 18:54 
+test.txt
+-rwxrwxrwx 1 root root   208 Apr 12 18:10 
+text.txt
+-rwxrwxrwx 1 root root   129 Apr  8 17:15 
+Tutorials.txt
+drwxrwxrwx 1 root root     0 Apr  1 19:32 
+UnixSystemCalls
+-rwxrwxrwx 1 root root 45830 Apr 12 18:31 
+y.tab.c
+-rwxrwxrwx 1 root root  2366 Apr 12 18:29 
+y.tab.h
+-rwxrwxrwx 1 root root 16464 Apr 12 18:31 
+y.tab.o
+
+hello I am computer
+
+I make the shell
+
+wat do
+
+/home/xinu/classcode> ls
+
+/home/xinu/classcode> ls
+-l
+
+/home/xinu/classcode> cd
+..
+
+/home/xinu> cd
+ ./classcode
+
+/home/xinu/classcode> alias 
+sete 
+setenv
+
+/home/xinu/classcode> alias 
+printe 
+printenv
+
+/home/xinu/classcode> alias
+
+alias sete='setenv'
+
+alias printe='printenv'
+
+/home/xinu/classcode> setenv 
+a 
+b 
+
+/home/xinu/classcode> printenv 
+
+SHELL=/bin/bash
+TERM=linux
+HUSHLOGIN=FALSE
+USER=xinu
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:
+MAIL=/var/mail/xinu
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+PWD=/home/xinu/classcode
+LANG=en_US.UTF-8
+SHLVL=1
+HOME=/home/xinu
+LOGNAME=xinu
+_=./shell
+OLDPWD=/home/xinu
+a=b
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games> 
+
+/home/xinu/classcode> unsetenv
+ a
+
+/home/xinu/classcode> unalias 
+setenv
+ 
+no next arg
+
+/home/xinu/classcode> unalias
+ printenv
+ 
+no next arg
+
+/home/xinu/classcode> printenv
+
+SHELL=/bin/bash
+TERM=linux
+HUSHLOGIN=FALSE
+USER=xinu
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:
+MAIL=/var/mail/xinu
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+PWD=/home/xinu/classcode
+LANG=en_US.UTF-8
+SHLVL=1
+HOME=/home/xinu
+LOGNAME=xinu
+_=./shell
+OLDPWD=/home/xinu
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games> 
+
+/home/xinu/classcode> alias
+
+/home/xinu/classcode> bye
+
+Exiting the shell now. Goodbye

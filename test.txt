@@ -1,20 +1,15 @@
-example shell
-exShell
-fib.c
-lex.yy.c
-lex.yy.o
-mainBackup.c
-main.c
-main.o
-Makefile
-node.h
-README.md
-shell
-shell.l
-shell.y
-test code
-test.txt
-Tutorials.txt
-y.tab.c
-y.tab.h
-y.tab.o
+ls > log.txt
+ls -l > log.txt
+cd ..
+cd ./classcode
+alias sete setenv
+alias printe printenv
+alias > log.txt
+sete a b
+printe > log.txt
+unsetenv a
+unalias sete 
+unalias printe
+printenv > log.txt
+alias > log.txt
+bye 
