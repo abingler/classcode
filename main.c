@@ -392,7 +392,7 @@ int whitespaceOnly(char* string)
 
 
 /*New Functions ****************************************************************************/
-int has_character(char* string, char ch)
+int has_character(char* string, char ch)  ///TO DELETE
 {
     int i;
     for (i = 0; i < strlen(string); i++)
@@ -487,6 +487,8 @@ void commandBlock(argNode* args){
     argNode* temp = args;
     int val = 0;
     int test = 0;
+    int pipeBuffer[50][2];
+    int n;
 
 
     while (list != NULL){ //Determine pipes found
@@ -582,23 +584,19 @@ void commandBlock(argNode* args){
 
                 free(temp); //Overflow problems
             }
-            if (check == 0){
-                fprintf(stderr, "error on line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
+            if (check == 0){ //No access
+                fprintf(stderr, "error on line %d, no command %s\n", yylineno, commandTable[val]->argVal);
                 return;
             }
         }
-        else
-        {
-            if( access( commandTable[val]->argVal, F_OK|X_OK ) != 0 )
-            {
-                fprintf(stderr, "error on line %d: command '%s' not found\n", yylineno, commandTable[val]->argVal);
+        else{ //If we already have our path setup
+            if( access( commandTable[val]->argVal, F_OK|X_OK ) != 0 ){ //No access
+                fprintf(stderr, "error on line %d, no command %s\n", yylineno, commandTable[val]->argVal);
                 return;
             }
         }
     }
-    if (pipesFound > 200) pipesFound = 200;
-    int pipeBuffer[200][2];
-    int n;
+    if (pipesFound > 50) pipesFound = 50;
     for (n = 0; n < pipesFound; n++)
     {
         pipe(pipeBuffer[n]);
