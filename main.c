@@ -384,13 +384,7 @@ void commandBlock(argNode* args){
     args = tempNode; //Why don't we reuse this
     args = aliasArgReplace(args);
 
-    currentNode = args;
     
-    while (currentNode != NULL)
-    {
-        printf("%s\n",currentNode->argVal);
-        currentNode = currentNode->next;
-    }
 
     if (args == NULL) return;
     const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};
