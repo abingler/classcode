@@ -69,7 +69,7 @@ void cd(argNode* args){
             location = (getenv("HOME"));  /*move to home*/
         }
         else{
-        fprintf(stderr, "error on line %d: 'HOME' == NULL\n", yylineno); 
+        fprintf(stderr, "error on line %d, 'HOME' == NULL\n", yylineno); 
         }
     }
     else{
@@ -84,7 +84,7 @@ void cd(argNode* args){
         }
     }
     validCheck = chdir(location); //attempt to change path and check if its valid
-    if (validCheck != 0) fprintf(stderr, "error on line %d:'%s' does not exist here\n", yylineno, location);
+    if (validCheck != 0) fprintf(stderr, "error on line %d, %s does not exist here\n", yylineno, location);
     char pwd[4096];
     getcwd(pwd, sizeof(pwd)); /*copy absolute pathname to pwd[]*/
     setenv("PWD", pwd, 1);
@@ -168,7 +168,7 @@ void alias(argNode* args){
         printAliasList(aliasHead);
     }
     else{
-        fprintf(stderr, "error on line %d: incorrect number of args for alias\n", yylineno);
+        fprintf(stderr, "error on line %d, incorrect number of args for alias\n", yylineno);
     }
 }
 void unalias(argNode* args)
@@ -176,7 +176,7 @@ void unalias(argNode* args)
     if (args->next != NULL) {
         //printf("no next arg\n");
         removeByAlias(&aliasHead, args->next->argVal);}
-    else fprintf(stderr, "error on line %d: too few args for unalias\n", yylineno);
+    else fprintf(stderr, "error on line %d, too few args for unalias\n", yylineno);
 }
 void bye()
 {
@@ -384,13 +384,7 @@ void commandBlock(argNode* args){
     args = tempNode; //Why don't we reuse this
     args = aliasArgReplace(args);
 
-    currentNode = args;
     
-    while (currentNode != NULL)
-    {
-        printf("%s\n",currentNode->argVal);
-        currentNode = currentNode->next;
-    }
 
     if (args == NULL) return;
     const char* Commands[8] = {"bye","ls","cd","alias","unalias","setenv","printenv","unsetenv"};

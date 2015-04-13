@@ -1,0 +1,6 @@
+alias hello hola
+alias
+setenv hello howdy
+echo hello
+echo ${hello}
+bye

@@ -10,14 +10,14 @@ makefile is included.
 HOW TO RUN:
 To compile, run "make clean; make"
 Then ./shell to run the shell
-Please note: If you are reading an input file to the shell to run commands, add the command bye and either a ";" or newline to the end of the file, or else it will simply run in an infinite loop
+Please note: If you are reading an input file to the shell to run commands, add the command bye and either a ";" or newline to the end of the file, or else it may simply run in an infinite loop
 
 Not working:
 file name completion
 Wildcard Matching
 Some of ~ expansion
 
-Working content:
+Working:
 created built in commands: cd, setenv, unsetenv, printenv, alias, and unalias
 args list and command table
 nested aliasing substitution
