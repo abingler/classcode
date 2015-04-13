@@ -378,8 +378,7 @@ void replaceEscape(char* str)
 int hasWhitespace(char* string)
 {
     int i;
-    for (i = 0; i < strlen(string); i++)
-    {
+    for (i = 0; i < strlen(string); i++){
         if (string[i] == '\t' || string[i] == ' ') return 1;
     }
     return 0;
@@ -388,8 +387,7 @@ int hasWhitespace(char* string)
 int whitespaceOnly(char* string)
 {
     int i;
-    for (i = 0; i < strlen(string); i++)
-    {
+    for (i = 0; i < strlen(string); i++){
         if (string[i] != '\t' && string[i] != ' ') return 0;
     }
     return 1;
@@ -408,25 +406,6 @@ int has_character(char* string, char ch)  ///TO DELETE
 }
 
 
-int get_args_list_size(argNode * head)
-{
-    argNode * current = head;
-    int counter = 0;
-    while (current != NULL)
-    {
-        if (strcmp(current->argVal, ">") != 0 &&
-            strcmp(current->argVal, ">>") != 0 &&
-            strcmp(current->argVal, "<") != 0 &&
-            strcmp(current->argVal, "|") != 0 &&
-            (current->argVal[0]!='2' && current->argVal[1]!='>') &&
-            strcmp(current->argVal, "&") != 0) {
-                counter++;
-                current = current->next; 
-        }
-        else break;
-    }
-    return counter;
-}
 
 
 /*END New Functions *************************************************************************/
@@ -536,35 +515,9 @@ void commandBlock(argNode* args){
 
 
 
-    for (val = 0; val < pipesFound + 1; val++) //For each group of commands
-    {
+    for (val = 0; val < pipesFound + 1; val++){ //For each group of commands
         argNode* list = commandTable[val];
-       /* while (list != NULL)
-        {
-            argNode* original = list->next;
-            if (has_character(list->argVal, '*') || has_character(list->argVal, '?')) //Do we have any wildcard characters here //WILDCARDING
-            {
-               glob_t globbuf; //Getcha globbins
-               if (glob(list->argVal, 0, NULL, &globbuf) == 0)
-               {
 
-                  size_t i;
-                  argNode* iter = list;
-                  for (i = 0; i < globbuf.gl_pathc; i++)
-                  {
-                    iter->argVal = strdup(globbuf.gl_pathv[i]);
-                    if (i != globbuf.gl_pathc - 1)
-                    {
-                      iter->next = malloc(sizeof(argNode));
-                      iter = iter->next;
-                    }
-                  }
-                  iter->next = original;
-                  globfree(&globbuf);
-                }
-            }
-            list = original;
-        } */
         if ( !has_character(commandTable[val]->argVal, '/') ) //If we do not have the '/' character ?No path to bin?
         {
             char* path = getenv("PATH"); //Grab that path
@@ -580,6 +533,7 @@ void commandBlock(argNode* args){
                  if(access(callCmd, F_OK ) != -1 ){ //Can we access this area (Will not always work)
                     check = 1;
                     commandTable[val]->argVal = callCmd;
+                    //printf("Call command is %s\n", callCmd);
                 }
                 else free(callCmd);
 
@@ -601,122 +555,161 @@ void commandBlock(argNode* args){
             }
         }
     }
-    if (pipesFound > 50) pipesFound = 50;
-    for (n = 0; n < pipesFound; n++)
-    {
-        pipe(pipeBuffer[n]);
 
+
+    //FPIPING!
+    if (pipesFound > 50) pipesFound = 50; //Max of 50 pipes
+    for (n = 0; n < pipesFound; n++){
+        pipe(pipeBuffer[n]);//Data written to the write end of the pipe is buffered by the kernel until it is read from the read end of the pipe
     }
+
+
     int wait_for_comp = 1;
     for (val = 0; val < pipesFound + 1; val++)
     {
-        if ( val == pipesFound ) {
-            int arg_size = get_args_list_size(commandTable[val])+1;
-            char *argv[ arg_size+1 ];
-            char* inputRed = "";
+
+       /* if(pipesFound == 0){
+
+        } */
+
+        if(val == pipesFound ) {//If we have zero or max pipes
+            char* inputRed = ""; //These are used to determine if we have a new file //char* inputRed;
             char* outputRed = "";
-            char* err_file = "";
-            int errisstdout = 0;
-            char* curr_arg;
+            char* errorRed = "";
+            argNode * current = commandTable[val]; //
+            int count = 0;
+            while (current != NULL)
+            {
+                if (strcmp(current->argVal, "|") != 0 && strcmp(current->argVal, "<") != 0 && strcmp(current->argVal, ">>") != 0 &&
+                    strcmp(current->argVal, ">") != 0 && (current->argVal[0]!='2' && current->argVal[1]!='>') &&
+                    strcmp(current->argVal, "&") != 0){
+                        count++;
+                        current = current->next; 
+                }
+                else break;
+            }
+            int numArgs = count+1; //How many args do we have. name change?
+
+            int haveError = 0;
+            char* thisArg;
             int i = 0;
 
+            char *argv[ numArgs +1 ];
+            argNode* list = commandTable[val]; //Grab current head of command
 
-            argNode* list = commandTable[val];
-            while(list != NULL) {
-                curr_arg = list->argVal;
-                if (i<arg_size-1){ //Grab arguments first
-                argv[i] = curr_arg;
+            while(list != NULL){ //Follow each value in the list
+                thisArg = list->argVal;
+
+                if (i<numArgs-1){ //Grab arguments first
+                argv[i] = thisArg;
                 } 
                 list = list->next;
                 i++;
-                if (strcmp(curr_arg, ">") == 0 || strcmp(curr_arg, ">>") == 0){ 
+                if (strcmp(thisArg, "<") == 0) { //INPUT REDIRECTION HERE
+                    if(list == NULL){ //No file given
+                        fprintf(stderr, "error on line %d, need input file\n", yylineno );
+                        return;
+                    }
+                    printf("Input file is %s\n", list->argVal); //Next after < should be a command
+                    inputRed = list->argVal; //Grab input
+                    list = list->next; //Update to next list
+                    i++;
+                } 
+                else if (strcmp(thisArg, ">") == 0 || 
+                    strcmp(thisArg, ">>") == 0){ //OUTPUT REDIRECTION HERE
                     if (list == NULL){
-                        fprintf(stderr, "error on line %d: no output file specified after >\n", yylineno );
+                        fprintf(stderr, "error on line %d, need output file>\n", yylineno );
                         return;
                     }
-                    outputRed = list->argVal;
+                    outputRed = list->argVal; //Grab output
                     list = list->next;
                     i++;
                 } 
-                else if (strcmp(curr_arg, "<") == 0) {
-                    if(list == NULL){
-                        fprintf(stderr, "error on line %d: no input file specified after <\n", yylineno );
-                        return;
-                    }
-                    printf("Input file is %s\n", list->argVal);
-                    inputRed = list->argVal;
-                    list = list->next;
-                    i++;
+                else if (strcmp(thisArg, "2>$1") == 0) { //ERROR REDIRECTION HERE
+                    haveError = 1;
                 } 
-                else if (strcmp(curr_arg, "2>$1") == 0) {
-                    errisstdout = 1;
-                } 
-                else if (curr_arg[0]=='2' && curr_arg[1]=='>') {
+                else if (thisArg[0]=='2' && thisArg[1]=='>') { //ERROR TO FILE HERE
                     int k = 0;
-                    char errf[strlen(curr_arg) - 2];
-                    for(k = 0; k < strlen(curr_arg)-2; k++){
-                        errf[k] = curr_arg[k+2];
+                    char errf[strlen(thisArg) - 2];
+                    for(k = 0; k < strlen(thisArg)-2; k++){
+                        errf[k] = thisArg[k+2];
                     }
-                    err_file = concatenate("", errf);
+                    errorRed = concatenate("", errf); //con-cat-e-nate errf to ""
                 } 
-                else if (curr_arg[0]=='&') {
+                else if (thisArg[0]=='&') { //& WAIT IN BACKGROUND HERE
                     wait_for_comp = 0;
                 }
             }
-            argv[arg_size-1] = NULL;
+            argv[numArgs-1] = NULL; //Add NULL to end of argv or IT DOES NOT WORK
 
-            int childPID = fork();
-            if ( childPID == 0 ) {
-                if (inputRed != "") {
-                    printf("You have changed file input\n");
-                    FILE *fp_in = fopen(inputRed, "a+");
-                    dup2(fileno(fp_in), STDIN_FILENO);
-                    fclose(fp_in);
-                }
-                else if (pipesFound > 0)
-                {
-                    dup2(pipeBuffer[val-1][0], STDIN_FILENO);
-                    for (n = 0; n < pipesFound; n++)
-                    {
-                        close(pipeBuffer[n][0]);
-                        close(pipeBuffer[n][1]);
-                    }
-                }
-                if (err_file != "") {
-                    FILE *fp_err = fopen(err_file, "a+");
-                    dup2(fileno(fp_err), STDERR_FILENO);
-                    fclose(fp_err);
-                } else if (errisstdout == 1) {
+            int child = fork(); //FORK THIS DAMN CHILD
+            if(child == 0 ){
+                if (haveError == 1) { //Simple error to ourput
                     dup2(fileno(stdout), fileno(stderr));
                 }
-                if (outputRed != "") {
-                    FILE *fp_out = fopen(outputRed, "a+");
-                    dup2(fileno(fp_out), STDOUT_FILENO);
-                    fclose(fp_out);
+                else if(errorRed != ""){ //Error handling
+                    FILE *errorFile = fopen(errorRed, "a+");
+                    dup2(fileno(errorFile), STDERR_FILENO);
+                    fclose(errorFile);
+                } 
+                if(outputRed != ""){
+                    FILE *outputFile = fopen(outputRed, "a+");
+                    dup2(fileno(outputFile), STDOUT_FILENO);
+                    fclose(outputFile);
                 }
+                if(inputRed != ""){
+                    //printf("You have changed file input\n");
+                    FILE *inputFile = fopen(inputRed, "a+");//Change input
+                    dup2(fileno(inputFile), STDIN_FILENO); 
+
+                    fclose(inputFile);
+                }
+                else if (pipesFound > 0){ //If there is no change to input, then route std_input into the pipes
+                    dup2(pipeBuffer[val-1][0], STDIN_FILENO); 
+                    for (n = 0; n < pipesFound; n++){ //Apparantly we need to close all the pipes or it just won't output
+                        close(pipeBuffer[n][0]); 
+                        close(pipeBuffer[n][1]);
+                    } 
+                } 
                 int g = 0;
-                for(g = 0; g < arg_size+1; g++){
-                    printf("Value at argv[%d] is: %s", g, argv[g]);
-                }
-                execve( commandTable[val]->argVal, argv, environ );
-                perror("execve");
-                _exit(EXIT_FAILURE);
+                //for(g = 0; g < numArgs+1; g++){
+                //    printf("Value at argv[%d] is: %s", g, argv[g]);
+                //}
+                execve(commandTable[val]->argVal, argv, environ );
+                _exit(EXIT_FAILURE); //Terminate calling process
             }
         }
-        else if ( val == 0 )
-        {
-            int arg_size = get_args_list_size(commandTable[val]);
-            char *argv[arg_size+1];
+
+
+        else if(val == 0){ //Very first value with piping
+            argNode * current = commandTable[val];
+            int count = 0;
+            while (current != NULL)
+            {
+                if (strcmp(current->argVal, ">") != 0 && strcmp(current->argVal, ">>") != 0 && strcmp(current->argVal, "<") != 0 &&
+                    strcmp(current->argVal, "|") != 0 && (current->argVal[0]!='2' && current->argVal[1]!='>') &&
+                    strcmp(current->argVal, "&") != 0){
+                        count++;
+                        current = current->next; 
+                }
+                else break;
+            }
+            int numArgs = count; //Number of args we have in the current commandTable list
+
+            //DON'T NEED TO WORRY ABOUT FILE I/O
+
+            char *argv[numArgs+1];
             int i;
             argNode* list = commandTable[val];
-            for (i = 0; i < arg_size; i++)
-            {
+            for (i = 0; i < numArgs; i++){ //Fill up argv
                 argv[i] = list->argVal;
                 list = list->next;
             }
-            argv[arg_size] = NULL;
-            int childPID = fork();
-            if ( childPID == 0 )
+            argv[numArgs] = NULL;
+
+
+            int child = fork(); //Sub programs
+            if ( child == 0 )
             {
                 dup2(pipeBuffer[val][1], STDOUT_FILENO);
                 for (n = 0; n < pipesFound; n++)
@@ -725,28 +718,42 @@ void commandBlock(argNode* args){
                     close(pipeBuffer[n][1]);
                 }
                 int g = 0;
-                for(g = 0; g < arg_size+1; g++){
+                for(g = 0; g < numArgs+1; g++){
                     printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
                 execve( commandTable[val]->argVal, argv, environ );
-                perror("execve");
-                _exit(EXIT_FAILURE);
+                _exit(EXIT_FAILURE); //Terminate calling process
             }
         }
-        else
-        {
-            int arg_size = get_args_list_size(commandTable[val]);
-            char *argv[arg_size+1];
+        //else if( val != 0 && val < pipesFound){
+        else{
+
+            argNode * current = commandTable[val];
+            int count = 0;
+            while (current != NULL)
+            {
+                if (strcmp(current->argVal, ">") != 0 && strcmp(current->argVal, ">>") != 0 && strcmp(current->argVal, "<") != 0 &&
+                    strcmp(current->argVal, "|") != 0 && (current->argVal[0]!='2' && current->argVal[1]!='>') &&
+                    strcmp(current->argVal, "&") != 0){
+                        count++;
+                        current = current->next; 
+                }
+                else break;
+            }
+            int numArgs = count;
+
+
+            char *argv[numArgs+1];
             int i;
             argNode* list = commandTable[val];
-            for (i = 0; i < arg_size; i++)
+            for (i = 0; i < numArgs; i++)
             {
                 argv[i] = list->argVal;
                 list = list->next;
             }
-            argv[arg_size] = NULL;
-            int childPID = fork();
-            if ( childPID == 0 )
+            argv[numArgs] = NULL;
+            int child = fork();
+            if ( child == 0 )
             {
                 dup2(pipeBuffer[val-1][0], STDIN_FILENO);
                 dup2(pipeBuffer[val][1], STDOUT_FILENO);
@@ -756,12 +763,11 @@ void commandBlock(argNode* args){
                     close(pipeBuffer[n][1]);
                 }
                 int g = 0;
-                for(g = 0; g < arg_size+1; g++){
+                for(g = 0; g < numArgs+1; g++){
                     printf("Value at argv[%d] is: %s", g, argv[g]);
                 }
                 execve( commandTable[val]->argVal, argv, environ );
-                perror("execve");
-                _exit(EXIT_FAILURE);
+                _exit(EXIT_FAILURE); //Terminate calling process
             }
         }
     }
