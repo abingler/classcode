@@ -20,8 +20,7 @@ typedef struct node { /*all nodes in alias linked list need a name value and poi
 nodeT* aliasHead; /*points to the head of the linked list*/
 
 
-int main()
-{         
+int main(){         
     aliasHead = NULL;
     printf("hello I am computer\n");
     printf("I make the shell\n");
@@ -97,14 +96,11 @@ void push(nodeT** head, char* alias, char* val) { /*add new node to linked list*
     newNode->alias = alias; /*define properties of new node*/
     newNode->val = val;
     newNode->next = NULL; /*new node should be at the end of the list*/
-    if (currentNode != NULL)/*if there is alredy a node in the list (not an empty list)*/
-    {
-        while (currentNode->next != NULL && strcmp(currentNode->alias, alias) != 0) /*while their are more nodes in the list and the alias of the currentNode node != to the new alias*/
-        {
+    if (currentNode != NULL){/*if there is alredy a node in the list (not an empty list)*/
+        while (currentNode->next != NULL && strcmp(currentNode->alias, alias) != 0){ /*while their are more nodes in the list and the alias of the currentNode node != to the new alias*/
             currentNode = currentNode->next; /*iterate through the list*/
         }
-        if (strcmp(currentNode->alias, alias) == 0) /*if the alias you tried to add alredy exists*/
-        {
+        if (strcmp(currentNode->alias, alias) == 0){ /*if the alias you tried to add alredy exists*/
             currentNode->val = val; /*update the existing alias */
             free(newNode);/*release the new node we dont need it*/
             printf("Alias has been updated \n");
@@ -112,29 +108,22 @@ void push(nodeT** head, char* alias, char* val) { /*add new node to linked list*
         }
         currentNode->next = newNode; /*append new node to list*/
     }
-    else
-    {
+    else{
         *head = newNode; /*place new node at the head of the empty list*/
-    }
-    
+    }    
 }
 
-void printAliasList(nodeT* head) /*print alias list duh*/
-{
+void printAliasList(nodeT* head){ /*print alias list*/
     nodeT* currentNode = head; /*define the passed in head as the currentNode node*/
-    while (currentNode != NULL)/*while there are nodes in the list*/
-    {
+    while (currentNode != NULL){/*while there are nodes in the list*/
         printf("alias %s='%s'\n", currentNode->alias, currentNode->val); /*print info for currentNode node*/
         currentNode = currentNode->next;/*go to next node*/
     }
 }
-char* retrieveVal(nodeT* head, char* alias)/*search the list and return the value of a given alias */
-{
+char* retrieveVal(nodeT* head, char* alias){/*search the list and return the value of a given alias */
     nodeT* currentNode = head;
-    while (currentNode != NULL) /*while not at the end of list*/
-    {
-        if (strcmp(currentNode->alias, alias) == 0)/*if match found*/
-        {
+    while (currentNode != NULL){ /*while not at the end of list*/
+        if (strcmp(currentNode->alias, alias) == 0){/*if match found*/
             return currentNode->val; /*return the val*/
         }
         currentNode = currentNode->next;/*else keep looking*/
@@ -142,14 +131,13 @@ char* retrieveVal(nodeT* head, char* alias)/*search the list and return the valu
     return NULL; /*no match found*/
 }
 
-char* aliasReplace(char* alias) 
-{
+char* aliasReplace(char* alias){
     char* val = retrieveVal(aliasHead, alias);/*look for alias and return matching value*/
     if (val != NULL) return val; /*if the alias exists return value*/
     return alias; /*else return the original input*/
 }
 
-int removeByAlias(nodeT** head, char * alias) { /*search for a node with a matching alias and remove it*/
+int removeByAlias(nodeT** head, char * alias){ /*search for a node with a matching alias and remove it*/
     nodeT* currentNode = *head; /*define start of list*/
     nodeT* prev = NULL; /*track previous node to repair list*/
     while (1) {/*search through list untill..*/
@@ -164,27 +152,22 @@ int removeByAlias(nodeT** head, char * alias) { /*search for a node with a match
     return 0;
 }
 
-void alias(argNode* args)
-{
+void alias(argNode* args){
     argNode* currentNode = args->next;
     int n = 0;
-    while (currentNode != NULL && n != 2)
-    {
+    while (currentNode != NULL && n != 2){
         n++;
         currentNode = currentNode->next;
     }
-    if (n == 2)
-    {
+    if (n == 2){
         char* argAlias = args->next->argVal;
         char* argValue = args->next->next->argVal;
         push(&aliasHead, argAlias, argValue);
     }
-    else if (n == 0)
-    {
+    else if (n == 0){
         printAliasList(aliasHead);
     }
-    else
-    {
+    else{
         fprintf(stderr, "error on line %d: incorrect number of args for alias\n", yylineno);
     }
 }
@@ -216,7 +199,6 @@ void setEnv(argNode* args)
     else{
         printf("printenv requires 2 variables \n");
     }
-
 };
 
 void printEnv()
@@ -232,14 +214,11 @@ void printEnv()
 void unsetEnv(argNode* args){
             argNode* currentNode = args->next;
             char* name = currentNode->argVal;
-            if(getenv(name))
-                unsetenv(name);\
-            else
-                printf("Variable %s does not exist.\n", name);
+            if(getenv(name)) unsetenv(name);
+            else printf("Variable %s does not exist.\n", name);
 }
 
-argNode* stringTok(char* string, char* delimiter)
-{
+argNode* stringTok(char* string, char* delimiter){
     char* token;
     char* tmp = strdup(string); //DO NOT MODIFY string. It's a POINTER
     token = strtok(tmp, delimiter); //Returns pointer to the next token
@@ -272,8 +251,7 @@ argNode* aliasArgReplace(argNode* args){
     argNode* original = args; //first
     while(nestedAliasLoop<100){
         aliasLoop =0;
-        while(args->argVal != aliasReplace(args->argVal) && aliasLoop < 100) //where an alias exists
-            {
+        while(args->argVal != aliasReplace(args->argVal) && aliasLoop < 100){ //where an alias exists
                 args->argVal = aliasReplace(args->argVal);
                 /*printf("debug1a args->argVal = %s\n",args->argVal );
                 if(args->next != NULL){
@@ -296,14 +274,13 @@ argNode* aliasArgReplace(argNode* args){
     if (nestedAliasLoop != 100 && aliasLoop != 100) { 
         return args;
     } //function succsefull
-    else
-    {
+    else{
         fprintf(stderr, "on line %d: infinite alias error occured\n", yylineno);
         argNode* prev = NULL;//empty args list and free nodes
         while (args != NULL){
-                prev = args;
-                args = args->next;
-                free(prev);
+            prev = args;
+            args = args->next;
+            free(prev);
         }
         return NULL;
     }
@@ -313,17 +290,14 @@ argNode* aliasArgReplace(argNode* args){
 
 /*string handling functions*/
 
-char* concatenate(char* dest, char* src)
-{
+char* concatenate(char* dest, char* src){
     char* concat = malloc(strlen(dest)+strlen(src)+1);
     strcpy(concat, dest);
     strcat(concat, src); //Append src to dest
-
     return concat;
 }
 
-char *replace(char *str, char *orig, char * rep) /*replace string with new substring*/
-{
+char *replace(char *str, char *orig, char * rep){ /*replace string with new substring*/
     static char buffer[4096];
     char *p;
     if(!(p = strstr(str, orig))) return str; /*is orig in str*/
@@ -342,12 +316,10 @@ char *insertEnv(char* input){ /*function extrats env variable*/
     int validFlag = 0;
     int start;
     int end;
-    for (i = 0; i < strlen(envvar); i++) /*iterate through input*/
-    {
+    for (i = 0; i < strlen(envvar); i++){ /*iterate through input*/
         if(envvar[i] == '$') start = i;
         if(envvar[i] == '{' && i == start+1) validFlag = 1;
-        if(envvar[i] == '}' && validFlag)
-        {
+        if(envvar[i] == '}' && validFlag){
             char subbuf[4096];
             memcpy(subbuf, &envvar[start], i-start+1);
             subbuf[i-start+1] = '\0';
@@ -364,8 +336,7 @@ char *insertEnv(char* input){ /*function extrats env variable*/
     return envvar;
 }
 
-void replaceEscape(char* str)
-{
+void replaceEscape(char* str){
     char* pRead = str;
     char* pWrite = str;
     while (*pRead) {
@@ -375,8 +346,7 @@ void replaceEscape(char* str)
     *pWrite = '\0';
 }
 
-int hasWhitespace(char* string)
-{
+int hasWhitespace(char* string){
     int i;
     for (i = 0; i < strlen(string); i++){
         if (string[i] == '\t' || string[i] == ' ') return 1;
@@ -384,8 +354,7 @@ int hasWhitespace(char* string)
     return 0;
 }
 
-int whitespaceOnly(char* string)
-{
+int whitespaceOnly(char* string){
     int i;
     for (i = 0; i < strlen(string); i++){
         if (string[i] != '\t' && string[i] != ' ') return 0;
@@ -395,11 +364,9 @@ int whitespaceOnly(char* string)
 
 
 /*New Functions ****************************************************************************/
-int has_character(char* string, char ch)  ///TO DELETE
-{
+int has_character(char* string, char ch){  ///TO DELETE
     int i;
-    for (i = 0; i < strlen(string); i++)
-    {
+    for (i = 0; i < strlen(string); i++){
         if (string[i] == ch) return 1;
     }
     return 0;
@@ -412,8 +379,6 @@ int has_character(char* string, char ch)  ///TO DELETE
 
 
 void commandBlock(argNode* args){
-
-
     argNode* tempNode = args;
     argNode* currentNode = args;
     while(args->next!=NULL){
@@ -514,8 +479,8 @@ void commandBlock(argNode* args){
     } */
 
 
-
     for (val = 0; val < pipesFound + 1; val++){ //For each group of commands
+
         argNode* list = commandTable[val];
 
         if ( !has_character(commandTable[val]->argVal, '/') ) //If we do not have the '/' character ?No path to bin?
