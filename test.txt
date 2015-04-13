@@ -1,20 +1,6 @@
-example shell
-exShell
-fib.c
-lex.yy.c
-lex.yy.o
-mainBackup.c
-main.c
-main.o
-Makefile
-node.h
-README.md
-shell
-shell.l
-shell.y
-test code
-test.txt
-Tutorials.txt
-y.tab.c
-y.tab.h
-y.tab.o
+ls
+setenv hello howdy
+alias hello hola
+echo hello
+echo ${hello}
+bye;
